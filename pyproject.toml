@@ -1,0 +1,19 @@
+[project]
+name = "io-mineria-codigo"
+version = "0.1.0"
+description = "Comparacion de tecnicas de clustering para la segmentacion de estudiantes"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "scipy",
+    "seaborn",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+]

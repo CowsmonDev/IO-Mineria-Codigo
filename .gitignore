@@ -1,0 +1,17 @@
+# Python environments and caches
+.venv/
+.uv-cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Generated analysis outputs
+output/
+resumen_clusters.csv
+
+# Student datasets contain sensitive personal information
+legacy/data/*.csv
+Legacy/data/*.csv
+
+.idea/
