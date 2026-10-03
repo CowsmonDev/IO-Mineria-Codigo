@@ -4,9 +4,11 @@ version = "0.1.0"
 description = "Comparacion de tecnicas de clustering para la segmentacion de estudiantes"
 requires-python = ">=3.11,<3.12"
 dependencies = [
+    "kmedoids>=0.5.5",
     "matplotlib",
     "numpy",
     "pandas",
+    "python-glmnet==2.6.1",
     "scikit-learn",
     "scipy",
     "seaborn",
@@ -14,6 +16,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "ipykernel>=7.4.0",
     "pytest",
     "ruff",
 ]

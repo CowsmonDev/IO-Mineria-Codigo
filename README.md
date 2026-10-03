@@ -23,6 +23,34 @@ uv run pytest
 
 Para trabajar con PyCharm, se debe abrir este directorio como proyecto y seleccionar como intérprete el ejecutable `.venv\Scripts\python.exe`. Las dependencias de ejecución y desarrollo están declaradas en `pyproject.toml`. El directorio `.venv` es local y descartable; no debe incorporarse al control de versiones.
 
+## Análisis en scripts Python
+
+Para ejecutar las tres etapas en secuencia desde la raíz del proyecto:
+
+```bash
+uv run python main.py
+```
+
+El punto de entrada `main.py` importa las tres etapas y las ejecuta en el mismo proceso, en orden. Cada etapa devuelve un diccionario con los datos que necesita la siguiente. Si una falla, la ejecución se detiene. El progreso y las carpetas de salida se informan en la consola.
+
+También se pueden ejecutar los módulos desde la raíz del proyecto:
+
+```bash
+uv run python -m src.manipulacion_datos
+uv run python -m src.analisis_preliminar
+uv run python -m src.analisis_extra
+```
+
+Al ejecutar el análisis preliminar por separado, este importa y ejecuta primero la preparación de datos. Al ejecutar el análisis extra, se ejecutan antes ambas etapas anteriores. Para correr todo una sola vez, usar `main.py`.
+
+Los módulos se llaman `manipulacion_datos`, `analisis_preliminar` y `analisis_extra`, sin prefijos numéricos, para permitir imports normales de Python. Importarlos no inicia el análisis: este comienza al llamar a su función `main()`. Los datos se pasan en memoria; no se guardan ni se cargan archivos intermedios.
+
+Los gráficos se exportan como PNG en `output/graficos/02_analisis_preliminar/` y `output/graficos/03_analisis_extra/`. El análisis preliminar genera 16 PNG con los datos actuales: siete gráficos generales, siete dendrogramas individuales y dos zooms. Los dendrogramas conservan además sus PDF en `output/dendrogramas/`. Los scripts generan los archivos sin abrir ventanas y al finalizar muestran en la consola las rutas completas de las carpetas donde se guardaron.
+
+El análisis extra conserva su implementación actual y las diferencias conocidas respecto de R. Silhouette de DBSCAN se omite si, al excluir el ruido, no hay entre dos y `n - 1` grupos; el script informa el motivo y continúa hasta Random Forest.
+
+Los archivos de `output/` contienen datos estudiantiles y están excluidos de Git. Los scripts de `src/` son la fuente activa del análisis en Python. Las copias completas de los notebooks anteriores se conservan en `Legacy/migracion_inicial/`, con sus comentarios y salidas, para mantener la historia de la migración.
+
 ## Antecedentes y origen
 
 El informe de Clementi y Salias estudió la deserción en Ingeniería de Sistemas de la Facultad de Ciencias Exactas de la UNICEN a partir de datos académicos del sistema SIU Guaraní. Para segmentar trayectorias estudiantiles aplicó clustering jerárquico aglomerativo con distancia euclídea y enlace `ward.D2`. El número de grupos se definió mediante el índice Silhouette y el análisis resultante tomó siete clústeres como base para caracterizar perfiles de estudiantes.

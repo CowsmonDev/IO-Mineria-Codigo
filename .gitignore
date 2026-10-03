@@ -5,12 +5,14 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .ruff_cache/
+.ipynb_checkpoints/
 
 # Generated analysis outputs
 output/
 resumen_clusters.csv
 
 # Student datasets contain sensitive personal information
+data/*.csv
 legacy/data/*.csv
 Legacy/data/*.csv
 
