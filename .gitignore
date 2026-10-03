@@ -17,3 +17,5 @@ legacy/data/*.csv
 Legacy/data/*.csv
 
 .idea/
+
+.obsidian
