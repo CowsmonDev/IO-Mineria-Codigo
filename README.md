@@ -36,14 +36,37 @@ El punto de entrada `main.py` importa las tres etapas y las ejecuta en el mismo 
 También se pueden ejecutar los módulos desde la raíz del proyecto:
 
 ```bash
-uv run python -m src.manipulacion_datos
+uv run python -m src.data.manipulacion
 uv run python -m src.analisis_preliminar
 uv run python -m src.analisis_extra
 ```
 
 Al ejecutar el análisis preliminar por separado, este importa y ejecuta primero la preparación de datos. Al ejecutar el análisis extra, se ejecutan antes ambas etapas anteriores. Para correr todo una sola vez, usar `main.py`.
 
-Los módulos se llaman `manipulacion_datos`, `analisis_preliminar` y `analisis_extra`, sin prefijos numéricos, para permitir imports normales de Python. Importarlos no inicia el análisis: este comienza al llamar a su función `main()`. Los datos se pasan en memoria; no se guardan ni se cargan archivos intermedios.
+El código se organiza así:
+
+```text
+main.py
+src/
+├── data/
+│   ├── manipulacion.py       # CSV, filtros de población e indicadores
+│   └── preparacion.py        # Variables en unidades originales y estandarización
+├── clustering/
+│   └── jerarquico.py         # Ward, dendrogramas, resumen y Silhouette
+├── lasso.py                  # Regresión logística y coeficientes originales
+├── analisis_preliminar.py    # Coordinación y gráficos descriptivos
+└── analisis_extra.py         # Hopkins, K-Means, DBSCAN, PAM y Random Forest
+```
+
+La carpeta `data/` de la raíz conserva los CSV de entrada; `src/data/` contiene el código que los prepara. `analisis_preliminar.main()` coordina la preparación de variables, LASSO y el jerárquico, y devuelve el mismo diccionario que consume el análisis extra. La preparación mantiene las variables originales, incluida `deserto`, y estandariza con desvío muestral (`ddof=1`) antes de agregar las etiquetas de grupos. LASSO utiliza la tabla en unidades originales y sus coeficientes no seleccionan ni ponderan las variables del clustering.
+
+Importar los módulos no inicia el análisis: las etapas se ejecutan al llamar a `main()`. Los datos se pasan en memoria; no se guardan ni se cargan archivos intermedios. Esta reorganización conserva los parámetros, cálculos y salidas existentes; el análisis extra permanece sin cambios.
+
+Para reproducir una ejecución con una fecha de análisis fija, se puede definir `ANALYSIS_DATE`. Si no se define, la preparación usa el día de ejecución:
+
+```bash
+ANALYSIS_DATE=2026-10-01 uv run python main.py
+```
 
 Los gráficos se exportan como PNG en `output/graficos/02_analisis_preliminar/` y `output/graficos/03_analisis_extra/`. El análisis preliminar genera 16 PNG con los datos actuales: siete gráficos generales, siete dendrogramas individuales y dos zooms. Los dendrogramas conservan además sus PDF en `output/dendrogramas/`. Los scripts generan los archivos sin abrir ventanas y al finalizar muestran en la consola las rutas completas de las carpetas donde se guardaron.
 

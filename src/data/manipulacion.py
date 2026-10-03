@@ -8,7 +8,7 @@ import pandas as pd
 
 
 def main():
-    os.chdir(Path(__file__).resolve().parents[1])
+    os.chdir(Path(__file__).resolve().parents[2])
 
     # Importaciones y lectura de datos
 

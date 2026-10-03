@@ -2,7 +2,8 @@
 
 import sys
 
-from src import analisis_extra, analisis_preliminar, manipulacion_datos
+from src import analisis_extra, analisis_preliminar
+from src.data import manipulacion as manipulacion_datos
 
 
 def main():
