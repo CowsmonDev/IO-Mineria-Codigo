@@ -56,7 +56,9 @@ La segmentación jerárquica original se preserva como referencia fija, con sus 
 
 ### 3.2. Variables utilizadas
 
-[Completar con todas las variables que efectivamente integran la matriz de clustering. No deducir la lista a partir de los coeficientes LASSO.]
+La matriz utiliza, en este orden: `tiempo_desde_ingreso`, `cursadas_aprobadas`, `cursadas_promocionadas`, `cursadas_desaprobadas`, `materias_anotado_ult_anio`, `finales_aprobados`, `finales_desaprobados`, `dias_dsd_ultimo_final`, `porc_finales` y `deserto`.
+
+[Completar las definiciones, unidades y codificaciones de la tabla.]
 
 | Variable | Descripción | Unidad o codificación | Transformación previa |
 |---|---|---|---|
@@ -66,7 +68,9 @@ La segmentación jerárquica original se preserva como referencia fija, con sus 
 
 El código de referencia transforma las variables temporales a días y estandariza las columnas numéricas restando su media y dividiendo por su desvío estándar muestral. La misma matriz resultante se utilizará como entrada para los tres métodos.
 
-[Documentar el tratamiento de valores faltantes y cualquier otra operación efectivamente aplicada. Registrar la dimensión final de la matriz y la correspondencia entre sus filas y los estudiantes.]
+La entrada verificada para la fecha 2026-10-01 contiene 2.587 estudiantes y diez variables. Se conserva `id_alumno` por separado y se comprueba que las tablas originales y estandarizadas tienen el mismo orden de filas y valores finitos. Las etiquetas de agrupamiento y los identificadores no integran la matriz. Se incluye `deserto`, conforme a la preparación original; por ello, la deserción de los perfiles no es una validación independiente.
+
+[Completar la descripción detallada del tratamiento previo de valores faltantes a partir de los filtros originales.]
 
 Las etiquetas del clustering jerárquico se conservarán para comparar las asignaciones, sin incorporarlas como variables de entrada a los métodos alternativos. Los perfiles se describirán en las unidades originales para facilitar su interpretación.
 
@@ -82,14 +86,14 @@ El informe original utiliza distancia euclídea y enlace Ward (`ward.D2` en R). 
 
 K-Means forma una cantidad prefijada de grupos alrededor de centros, minimizando la suma de distancias euclídeas cuadradas entre las observaciones y el centro de su grupo.
 
-La primera comparación utiliza siete grupos, manteniendo la cantidad de la referencia jerárquica. Se conserva una ejecución principal prefijada y se evalúa la sensibilidad a la inicialización. La ejecución inicial y sus resultados se registran en [resultados-kmeans.md](resultados-kmeans.md).
+La implementación actual utiliza siete grupos, manteniendo la cantidad de la referencia jerárquica, con una ejecución de semilla prefijada. La evaluación sistemática de sensibilidad se retomará al abordar la comparación. La ejecución inicial y sus resultados se registran en [resultados-kmeans.md](resultados-kmeans.md).
 
 | Decisión | Configuración |
 |---|---|
 | Cantidad de grupos | 7 |
 | Inicialización | k-means++; algoritmo Lloyd, máximo 300 iteraciones y tolerancia 0,0001 |
 | Cantidad de inicializaciones por ejecución | 25 |
-| Semillas y repeticiones | Principal: 123; adicionales: 0 a 8 |
+| Semillas y repeticiones | Ejecución actual: 123; repeticiones de estabilidad pendientes |
 | Criterio de selección de la ejecución presentada | Semilla 123 prefijada; menor inercia entre sus 25 inicializaciones |
 
 ### 4.3. DBSCAN
@@ -100,9 +104,9 @@ No se exigirá que DBSCAN produzca siete grupos. Se documentará cómo se selecc
 
 | Decisión | Configuración |
 |---|---|
-| Valores de `eps` evaluados | [Definir y justificar] |
-| Valores de `min_samples` evaluados | [Definir y justificar] |
-| Criterio de elección de la configuración presentada | [Definir] |
+| Valores de `eps` evaluados | Inicial: 1,5, tomado del antecedente; exploración posterior pendiente |
+| Valores de `min_samples` evaluados | Inicial: 5, incluido el propio punto; exploración posterior pendiente |
+| Criterio de elección de la configuración presentada | Parámetros explícitos para inspección; elección final pendiente |
 | Tratamiento del ruido en las métricas | Informar explícitamente las observaciones incluidas y excluidas |
 
 ### 4.4. Criterios de comparación
@@ -117,9 +121,9 @@ Silhouette se informará cuando la partición permita calcularlo. Si se excluye 
 
 Cada experimento conservará su configuración, las versiones de las herramientas utilizadas, las asignaciones obtenidas, las métricas y las tablas o gráficos necesarios para reproducir e interpretar el resultado.
 
-Para K-Means se ejecuta `ANALYSIS_DATE=2026-10-01 uv run python main.py --analisis kmeans`. Las tablas y la configuración se exportan en `output/kmeans/`, y los gráficos en `output/graficos/kmeans/`. El [README](../README.md#primera-comparación-k-means-con-siete-grupos) describe las salidas y el protocolo.
+Se ejecuta `uv run python main.py`, con fecha predeterminada 2026-10-01. Se prepara la entrada una sola vez y se ejecutan los tres algoritmos. La etapa actual muestra parámetros, cantidades, medias y Silhouette en consola y genera PNG en `output/<método>/graficos/`. Los resultados numéricos quedan en memoria. El [README](../README.md) describe los argumentos de ejecución.
 
-[Completar el registro de DBSCAN cuando se implemente.]
+El registro comparativo completo, sus tablas y el análisis de sensibilidad se desarrollarán en una etapa posterior.
 
 ## 5. Resultados
 
@@ -129,21 +133,23 @@ Para K-Means se ejecuta `ANALYSIS_DATE=2026-10-01 uv run python main.py --analis
 
 ### 5.2. Resultados de K-Means
 
-La ejecución principal sobre 2.587 estudiantes obtuvo Silhouette de 0,365474, frente a 0,295444 del jerárquico, y ARI contra la referencia de 0,670893. El mínimo ARI entre semillas fue 0,666514, por lo que existe sensibilidad a la inicialización que debe considerarse al interpretar los perfiles. El detalle reproducible está en [resultados-kmeans.md](resultados-kmeans.md).
+La ejecución principal sobre 2.587 estudiantes obtuvo Silhouette de 0,365474, frente a 0,295444 del jerárquico, y ARI contra la referencia de 0,670893. El mínimo ARI entre semillas fue 0,666514, por lo que existe sensibilidad a la inicialización que debe considerarse al interpretar los perfiles. Estos valores de concordancia y estabilidad pertenecen a la primera implementación documentada en [resultados-kmeans.md](resultados-kmeans.md). La ejecución actual conserva el agrupamiento principal y difiere la comparación sistemática.
 
-[Completar la interpretación de los perfiles a partir de las tablas exportadas.]
+[Completar la interpretación de los perfiles cuando se retome la comparación.]
 
 ### 5.3. Resultados de DBSCAN
 
-[Presentar las configuraciones evaluadas, la elegida, la cantidad y los tamaños de los grupos, el ruido, las métricas calculables y los perfiles.]
+La implementación actual utiliza `eps=1.5` y `min_samples=5`, como configuración explícita inicial. Sobre la entrada de referencia produjo un grupo de 2.393 estudiantes y 194 casos de ruido. Silhouette excluyendo ruido no se puede calcular porque hay un solo grupo. Ver [resultados-dbscan.md](resultados-dbscan.md).
+
+[Inspeccionar los gráficos, probar parámetros explícitos y justificar la configuración final antes de desarrollar la comparación.]
 
 ### 5.4. Comparación general
 
 | Método | Configuración | Cantidad de grupos | Estudiantes agrupados | Ruido | Silhouette | Población evaluada para Silhouette |
 |---|---|---|---|---|---|---|
-| Jerárquico | [Configuración original] | 7 | [Completar] | No aplica | [Completar] | [Completar] |
-| K-Means | [Completar] | [Completar] | [Completar] | No aplica | [Completar] | [Completar] |
-| DBSCAN | [Completar] | [Completar] | [Completar] | [Completar] | [Valor o motivo por el que no aplica] | [Completar] |
+| Jerárquico | Euclídea, Ward, corte h=35 | 7 | 2.587 | No aplica | 0,295444 | 2.587 |
+| K-Means | k=7, k-means++, 25 inicios, semilla 123 | 7 | 2.587 | No aplica | 0,365474 | 2.587 |
+| DBSCAN | Inicial: eps=1,5; min_samples=5 | 1 | 2.393 | 194 | No calculable: un grupo | 0; 2.393 estudiantes sin ruido |
 
 ### 5.5. Correspondencia de grupos y perfiles
 

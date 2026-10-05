@@ -63,3 +63,15 @@ def analizar(alumnos_s_avanzados):
     print(coeficientes_lasso)
 
     return {"modelo": modelo_lasso, "coeficientes": coeficientes_lasso}
+
+
+def main():
+    """Ejecuta el antecedente LASSO por separado de la comparación."""
+    from .data.manipulacion import main as preparar_datos
+    from .data.preparacion import preparar_variables
+
+    return analizar(preparar_variables(preparar_datos()["alumnos_s_avanzados"]))
+
+
+if __name__ == "__main__":
+    main()

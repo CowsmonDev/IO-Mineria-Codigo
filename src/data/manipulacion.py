@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 
 
-def main():
-    os.chdir(Path(__file__).resolve().parents[2])
+def main(fecha_analisis=None):
+    directorio_datos = Path(__file__).resolve().parents[2] / "data"
 
     # Importaciones y lectura de datos
 
@@ -19,18 +19,18 @@ def main():
     # finales: contiene los datos de los exámenes finales rendidos por los alumnos de la Facultad de Cs. Exactas
     # planes: contiene los datos de los planes de estudio de las carreras de la Facultad de Cs. Exactas
 
-    alumnos = pd.read_csv("data/001_alumnos.csv", header=0, sep="|")
+    alumnos = pd.read_csv(directorio_datos / "001_alumnos.csv", header=0, sep="|")
 
     cursadas = pd.read_csv(
-        "data/002_regularidades.csv", sep="|", dtype={"materia": str}
+        directorio_datos / "002_regularidades.csv", sep="|", dtype={"materia": str}
     )
 
     finales = pd.read_csv(
-        "data/003_historia_academica.csv", sep="|", dtype={"materia": str}
+        directorio_datos / "003_historia_academica.csv", sep="|", dtype={"materia": str}
     )
 
     planes = pd.read_csv(
-        "data/000_materias_planes.csv", sep="|", dtype={"materia": str}
+        directorio_datos / "000_materias_planes.csv", sep="|", dtype={"materia": str}
     )
 
     # Selección de estudiantes y materias
@@ -278,9 +278,7 @@ def main():
     )
 
     _fecha_actual = pd.Timestamp(
-        os.environ["ANALYSIS_DATE"]
-        if os.environ.get("ANALYSIS_DATE")
-        else pd.Timestamp.today()
+        fecha_analisis or os.environ.get("ANALYSIS_DATE") or pd.Timestamp.today()
     ).normalize()
     alumnos_con_finales["dias_dsd_ultimo_final"] = _fecha_actual - pd.to_datetime(
         alumnos_con_finales["_fecha_ultimo_final"]

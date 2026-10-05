@@ -53,9 +53,13 @@ Si Silhouette de DBSCAN se calcula excluyendo el ruido, se informarán la cantid
 ## Estado del protocolo y decisiones pendientes
 
 - La entrada común quedó registrada para la fecha 2026-10-01: 2.587 estudiantes y diez variables; ver [resultados-kmeans.md](resultados-kmeans.md).
-- El protocolo inicial de K-Means quedó implementado: siete grupos, k-means++, 25 inicializaciones, semilla principal 123 y nueve semillas adicionales (0 a 8). La variación observada requiere análisis antes de concluir; ver [resultados-kmeans.md](resultados-kmeans.md).
-- Definir el protocolo de DBSCAN: valores de `eps`, `min_samples` y criterio de elección de la configuración analizada.
+- K-Means se ejecuta con siete grupos, k-means++, 25 inicializaciones y semilla 123. La primera implementación examinó semillas adicionales, pero la ejecución actual se limita al agrupamiento y sus gráficos. El protocolo de estabilidad se retomará al abordar la comparación; ver [resultados-kmeans.md](resultados-kmeans.md).
+- DBSCAN ejecuta una configuración explícita, inicialmente eps=1.5 y min_samples=5. Primero se inspeccionan los grupos y gráficos; la exploración comparativa y la justificación final de parámetros quedan pendientes. Ver [resultados-dbscan.md](resultados-dbscan.md).
 - Acordar si se explorarán otras cantidades de grupos para K-Means como análisis complementario.
+
+## Etapa actual
+
+La implementación actual prepara una entrada común, ejecuta los tres métodos y muestra resultados básicos y gráficos. La comparación sistemática prevista en esta nota se realizará posteriormente. Se retiraron los módulos de evaluación comparativa y exportación para mantener el código centrado en esta etapa.
 
 ## Documentación
 
@@ -67,6 +71,6 @@ El informe distinguirá entre los resultados jerárquicos del estudio original y
 
 - [Informe de Clementi y Salias](referencias/IO-Mineria-Informe-Clementi-Salias.pdf), secciones 3.1, 3.2, 3.2.1 y 5.
 - [Código original del análisis preliminar](../Legacy/scripts/script_analisis_preliminar_2025.R), selección de variables, LASSO, estandarización y clustering jerárquico.
-- [Código del análisis preliminar](../src/analisis_preliminar.py).
-- [Código del análisis adicional](../src/analisis_extra.py), como punto de partida para los nuevos experimentos.
+- [Preparación común](../src/data/preparacion.py) y [ejecución unificada](../main.py).
+- [Referencia jerárquica](../src/clustering/jerarquico.py), [K-Means](../src/clustering/kmeans.py) y [DBSCAN](../src/clustering/dbscan.py).
 - [Documentación de clustering de scikit-learn](https://scikit-learn.org/stable/modules/clustering.html).

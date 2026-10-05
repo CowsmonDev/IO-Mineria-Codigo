@@ -42,7 +42,7 @@ La semilla 6 produjo la mayor inercia y el mayor Silhouette del conjunto, mostra
 ## Reproducción y archivos
 
 ```bash
-ANALYSIS_DATE=2026-10-01 uv run python main.py --analisis kmeans
+uv run python main.py --fecha 2026-10-01
 ```
 
-Tablas y configuración: `output/kmeans/`. Gráficos: `output/graficos/kmeans/`. El [README](../README.md#primera-comparación-k-means-con-siete-grupos) describe cada archivo. `configuracion.json` registra las versiones y las huellas de la matriz de entrada y de las etiquetas de referencia. Las salidas estudiantiles están excluidas de Git.
+Esta nota documenta la primera implementación, que generó tablas en `output/kmeans/` y gráficos en `output/graficos/kmeans/`. Las métricas de correspondencia y estabilidad descritas arriba pertenecen a esa ejecución histórica. La ejecución actual conserva el agrupamiento principal, muestra sus resultados básicos en consola y genera PNG en `output/<método>/graficos/`; no ejecuta la comparación ni exporta tablas. El [README](../README.md) describe el alcance actual.

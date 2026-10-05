@@ -165,17 +165,18 @@ name = "io-mineria-codigo"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "kmedoids" },
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "pandas" },
-    { name = "python-glmnet" },
     { name = "scikit-learn" },
     { name = "scipy" },
     { name = "seaborn" },
 ]
 
 [package.dev-dependencies]
+antecedentes = [
+    { name = "python-glmnet" },
+]
 dev = [
     { name = "ipykernel" },
     { name = "pytest" },
@@ -184,17 +185,16 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "kmedoids", specifier = ">=0.5.5" },
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "pandas" },
-    { name = "python-glmnet", specifier = "==2.6.1" },
     { name = "scikit-learn" },
     { name = "scipy" },
     { name = "seaborn" },
 ]
 
 [package.metadata.requires-dev]
+antecedentes = [{ name = "python-glmnet", specifier = "==2.6.1" }]
 dev = [
     { name = "ipykernel", specifier = ">=7.4.0" },
     { name = "pytest" },
@@ -338,19 +338,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/f4/ce/a7dc71353dd06a4cbe02222773f52d4a28c81e5a452a75797f8ed113dc99/kiwisolver-1.5.1-pp311-pypy311_pp73-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:5daa1f19e097050b9c4d9a78fcc9263cb96c9dfae08037ddc1b7c4ad1889f2a2", size = 79891, upload-time = "2026-08-28T10:28:22.936Z" },
     { url = "https://files.pythonhosted.org/packages/10/b1/d61c61a84ff85d1a36a99df2c152b59ffedb1d356c598902aba44abcdb60/kiwisolver-1.5.1-pp311-pypy311_pp73-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:cdaeeb6c350106df6bf9d873395973e5f066a9713200b72cd64f55d0a3eafab6", size = 77605, upload-time = "2026-08-28T10:28:24.322Z" },
     { url = "https://files.pythonhosted.org/packages/d3/52/5aef56f21a460a6e43ab3cdfc7697d59d7b87deb0ec97a0f7b91aa4a521b/kiwisolver-1.5.1-pp311-pypy311_pp73-win_amd64.whl", hash = "sha256:17851e5dad4484be0cbccbde3b15331deae036de9aebd45eed964487802b172f", size = 98465, upload-time = "2026-08-28T10:28:25.696Z" },
-]
-
-[[package]]
-name = "kmedoids"
-version = "0.5.5"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/85/25/192a8beee16f1c74f3421bc418db37835b1090cc5187534c5dfb1966eb3a/kmedoids-0.5.5-cp311-cp311-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl", hash = "sha256:be5b29d701f0efec1c3809866275c6bfa398aad6b2c0761d216b6f30e317f556", size = 814539, upload-time = "2026-05-23T13:14:49.527Z" },
-    { url = "https://files.pythonhosted.org/packages/b3/81/2be3c3ec4a4eee9620c09900dc20e31807a809bfa22038f789fbae031f9e/kmedoids-0.5.5-cp311-cp311-manylinux_2_28_aarch64.whl", hash = "sha256:f7b993acea83c9b3ed3e00dbe6fce0da7eeb2d885aae67a1a9c58a66b294f359", size = 426996, upload-time = "2026-05-23T13:14:51.072Z" },
-    { url = "https://files.pythonhosted.org/packages/f7/5e/b16f439db6b43a51dfe7230f18108b7b9a30ce03c31cfd19cdfb53e3682b/kmedoids-0.5.5-cp311-cp311-manylinux_2_28_x86_64.whl", hash = "sha256:ee02125a43654838caea43e5155d8cb0ffc4ba5121035eef4b9d242d10d2ba3d", size = 461852, upload-time = "2026-05-23T13:14:52.929Z" },
-    { url = "https://files.pythonhosted.org/packages/51/6c/bf372bde75873d09b5f8812f6bec8348248e791ca00b3b75ad7fcb480344/kmedoids-0.5.5-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:e70e8baa124e8ddae3ea5f6d3efa84807d1378858ca559549aaa86bf5af6f6ea", size = 491823, upload-time = "2026-05-23T13:14:54.424Z" },
-    { url = "https://files.pythonhosted.org/packages/16/93/2345157919ce004710bbecba1108eaf37e583d8c1b7ac46de134b9d523b8/kmedoids-0.5.5-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:e52a3ab7156413f43959759fb82b890a400052c32aceb189a4887ffe2d69f231", size = 537812, upload-time = "2026-05-23T13:14:56.396Z" },
-    { url = "https://files.pythonhosted.org/packages/22/ea/6f8e13b6ff8d0025a34dc8275bde360071e8a2fcb0a6b313e4e2d9f2bed7/kmedoids-0.5.5-cp311-none-win_amd64.whl", hash = "sha256:828bb6f56617f691dd0e28ffd108f44fd24aa4bed30ade34addf575b10befab9", size = 374082, upload-time = "2026-05-23T13:14:58.611Z" },
 ]
 
 [[package]]
