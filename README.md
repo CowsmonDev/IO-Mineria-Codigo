@@ -61,7 +61,9 @@ Los PNG se guardan por dominio: `output/jerarquico/graficos/`, `output/dbscan/gr
 
 Cada gráfico corresponde a un solo método y se guarda en su carpeta de dominio. Los números de grupos son etiquetas independientes y no implican correspondencia entre métodos.
 
-La ejecución actual no genera CSV ni JSON. ARI, correspondencias, análisis de estabilidad, exploraciones automáticas y exportaciones masivas quedan para cuando se aborde la comparación. Las salidas de experimentos previos, si existen, no se actualizan con este comando. Los datos y `output/` están excluidos de Git.
+El jerárquico recupera las salidas del original R: `resumen_clusters.csv` en su carpeta de dominio; dendrogramas internos con cuatro subgrupos y zooms de los primeros 50 casos para grupos de al menos 500 estudiantes, en PDF y PNG dentro de `graficos/`. También se generan Silhouette para k=2 a 15, distribución individual de deserción y avance frente a promocionadas. Este diagnóstico de k no modifica el corte fijo a altura 35.
+
+K-Means y DBSCAN generan únicamente PNG; no se genera JSON. ARI, correspondencias, análisis de estabilidad, exploraciones automáticas y exportaciones masivas quedan para cuando se aborde la comparación. Las salidas de experimentos previos, si existen, no se actualizan con este comando. Los datos y `output/` están excluidos de Git.
 
 ## Verificación y antecedentes
 
@@ -70,7 +72,7 @@ uv run pytest -q
 uv run ruff check main.py src tests
 ```
 
-Las pruebas cubren identidad y orden de la entrada, agrupamientos, ruido, vecindades, particiones sin Silhouette y generación de gráficos sin exportaciones de tablas.
+Las pruebas cubren identidad y orden de la entrada, agrupamientos, ruido, vecindades, particiones sin Silhouette y generación de gráficos y el resumen CSV original del jerárquico.
 
 LASSO puede ejecutarse por separado con su dependencia opcional:
 

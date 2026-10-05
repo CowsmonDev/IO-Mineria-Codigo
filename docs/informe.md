@@ -121,7 +121,7 @@ Silhouette se informará cuando la partición permita calcularlo. Si se excluye 
 
 Cada experimento conservará su configuración, las versiones de las herramientas utilizadas, las asignaciones obtenidas, las métricas y las tablas o gráficos necesarios para reproducir e interpretar el resultado.
 
-Se ejecuta `uv run python main.py`, con fecha predeterminada 2026-10-01. Se prepara la entrada una sola vez y se ejecutan los tres algoritmos. La etapa actual muestra parámetros, cantidades, medias y Silhouette en consola y genera PNG en `output/<método>/graficos/`. Los resultados numéricos quedan en memoria. El [README](../README.md) describe los argumentos de ejecución.
+Se ejecuta `uv run python main.py`, con fecha predeterminada 2026-10-01. Se prepara la entrada una sola vez y se ejecutan los tres algoritmos. La etapa actual muestra parámetros, cantidades, medias y Silhouette en consola y genera PNG en `output/<método>/graficos/`. Los resultados numéricos quedan en memoria. El jerárquico conserva además el resumen original en `output/jerarquico/resumen_clusters.csv` y los dendrogramas internos y zooms en PDF y PNG dentro de su carpeta `graficos/`; se restaura también el diagnóstico de Silhouette para k=2 a 15 sin cambiar el corte a altura 35. El [README](../README.md) describe los argumentos de ejecución.
 
 El registro comparativo completo, sus tablas y el análisis de sensibilidad se desarrollarán en una etapa posterior.
 

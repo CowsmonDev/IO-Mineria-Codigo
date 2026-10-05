@@ -30,6 +30,7 @@ def ejecutar(entrada, *, salida, eps=dbscan.EPS, min_samples=dbscan.MIN_SAMPLES)
     )
     print("Etapa 5/5: gráficos", flush=True)
     generar(entrada, resultados, Path(salida))
+    jerarquico.guardar_resumen(resultados["jerarquico"], Path(salida) / "jerarquico")
     for metodo, resultado in resultados.items():
         print(f"\n{metodo}: {resultado['parametros']}")
         print(resultado["resumen"].to_string())

@@ -1,4 +1,4 @@
-"""La ejecución básica conserva la entrada y produce solo gráficos."""
+"""La ejecución básica conserva la entrada y las salidas originales del jerárquico."""
 
 import numpy as np
 import pandas as pd
@@ -25,6 +25,7 @@ def test_ejecucion_genera_graficos_aunque_dbscan_no_tenga_silhouette(
             "resumen": resumen,
             "silhouette": valores,
             "silhouette_promedio": valores.mean(),
+            "silhouette_por_k": pd.Series([0.1, 0.2], index=[2, 3]),
             "poblacion_silhouette": len(matriz),
             "motivo_silhouette": "",
             "parametros": {"height": 35},
@@ -46,5 +47,9 @@ def test_ejecucion_genera_graficos_aunque_dbscan_no_tenga_silhouette(
     assert (tmp_path / "dbscan/graficos/vecinos.png").is_file()
     assert (tmp_path / "jerarquico/graficos/dendrograma_general.png").is_file()
     assert not list(tmp_path.glob("*.png"))
-    assert not list(tmp_path.rglob("*.csv"))
+    resumen = tmp_path / "jerarquico/resumen_clusters.csv"
+    assert pd.read_csv(resumen)["cantidad_observaciones"].sum() == len(original)
+    assert list(tmp_path.rglob("*.csv")) == [resumen]
+    assert (tmp_path / "jerarquico/graficos/dendrograma_cluster_1.pdf").is_file()
+    assert (tmp_path / "jerarquico/graficos/silhouette_por_k.png").is_file()
     assert not list(tmp_path.rglob("*.json"))

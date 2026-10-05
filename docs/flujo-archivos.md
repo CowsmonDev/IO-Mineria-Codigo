@@ -14,17 +14,18 @@ flowchart TD
     J --> RES["Resultados en memoria"]
     K --> RES
     D --> RES
+    RES --> CSVJ["jerarquico.py · guardar_resumen<br/>output/jerarquico/resumen_clusters.csv"]
     RES --> CONSOLA["main.py<br/>Parámetros y resultados básicos en consola"]
     RES --> VIS["visualizacion.py<br/>Gráficos de los resultados"]
     PRE -. "Entrada preparada" .-> VIS
-    VIS --> JPNG["output/jerarquico/graficos/<br/>PNG"]
+    VIS --> JPNG["output/jerarquico/graficos/<br/>PNG y PDF"]
     VIS --> KPNG["output/k-means/graficos/<br/>PNG"]
     VIS --> DPNG["output/dbscan/graficos/<br/>PNG"]
 ```
 
 Cada algoritmo calcula sus etiquetas y resultados básicos: cantidad y medias por grupo, Silhouette individual y promedio. DBSCAN excluye ruido de Silhouette y registra el motivo si no se puede calcular; también devuelve las distancias de vecindad para su gráfico.
 
-`visualizacion.py` genera figuras de tamaños, Silhouette, perfiles, distancias a vecinos y dendrogramas. Los resúmenes y resultados numéricos se muestran en consola y permanecen en memoria. No se generan CSV ni JSON.
+`visualizacion.py` genera figuras de tamaños, Silhouette, perfiles, distancias a vecinos y dendrogramas. Los resúmenes y resultados numéricos se muestran en consola y permanecen en memoria. El jerárquico guarda además el resumen CSV original y los dendrogramas internos y zooms en PDF. No se generan tablas comparativas ni JSON.
 
 La selección de parámetros de DBSCAN es explícita. La ejecución inicial utiliza `eps=1.5` y `min_samples=5`. No hay selección automática, comparación por ARI, tablas de correspondencia ni análisis de estabilidad en este flujo. Los módulos `evaluacion.py` y `exportacion.py` fueron retirados.
 
