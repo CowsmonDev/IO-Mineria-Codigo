@@ -2,9 +2,16 @@
 
 import numpy as np
 import pandas as pd
+from pandera.typing import DataFrame
+
+from src.data.esquemas import (
+    EntradaClustering,
+    VariablesEstandarizadas,
+    VariablesOriginales,
+)
 
 
-def preparar_variables(alumnos):
+def preparar_variables(alumnos: pd.DataFrame) -> DataFrame[VariablesOriginales]:
     """Convierte tiempos a días y selecciona las variables, sin modificar la entrada."""
     alumnos_s_avanzados = alumnos.copy()
     alumnos_s_avanzados["tiempo_desde_ingreso"] = (
@@ -33,10 +40,12 @@ def preparar_variables(alumnos):
         ]
     )
 
-    return alumnos_s_avanzados
+    return VariablesOriginales.validate(alumnos_s_avanzados)
 
 
-def estandarizar(alumnos_s_avanzados):
+def estandarizar(
+    alumnos_s_avanzados: DataFrame[VariablesOriginales],
+) -> DataFrame[VariablesEstandarizadas]:
     """Estandariza con desvío muestral, conservando las variables originales.
 
     Incluye deserto, como en la entrada original. Las etiquetas de clustering
@@ -50,11 +59,11 @@ def estandarizar(alumnos_s_avanzados):
     return alumnos_s_avanzados_sc
 
 
-def preparar_entrada(datos):
+def preparar_entrada(datos) -> EntradaClustering:
     """Conserva identidad, unidades originales y matriz común sin etiquetas."""
     alumnos = datos["alumnos_s_avanzados"]
     originales = preparar_variables(alumnos).reset_index(drop=True)
-    entrada = {
+    entrada: EntradaClustering = {
         "originales": originales,
         "matriz": estandarizar(originales),
         "ids_alumnos": alumnos["id_alumno"].to_numpy(copy=True),
@@ -64,7 +73,7 @@ def preparar_entrada(datos):
     return entrada
 
 
-def validar_entrada(entrada):
+def validar_entrada(entrada: EntradaClustering) -> None:
     """Rechaza contaminación por etiquetas, identidades inválidas y desalineación."""
     originales, matriz = entrada["originales"], entrada["matriz"]
     ids = np.asarray(entrada["ids_alumnos"])
@@ -76,6 +85,8 @@ def validar_entrada(entrada):
         raise ValueError("Las tablas y los identificadores deben tener igual longitud.")
     if pd.isna(ids).any() or pd.Series(ids).duplicated().any():
         raise ValueError("Cada fila debe tener un id_alumno único y no nulo.")
+    VariablesOriginales.validate(originales)
+    VariablesEstandarizadas.validate(matriz)
     if not np.isfinite(matriz.to_numpy(dtype=float)).all():
         raise ValueError("La entrada contiene valores faltantes o no finitos.")
     esperada = (originales - originales.mean()) / originales.std(ddof=1)

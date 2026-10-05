@@ -34,6 +34,7 @@ main.py                         # Preparación, algoritmos y gráficos
 src/
 ├── data/
 │   ├── manipulacion.py         # CSV, filtros e indicadores originales
+│   ├── esquemas.py             # Columnas, tipos y significado de la entrada (Pandera)
 │   └── preparacion.py          # Variables, identidad y estandarización
 ├── clustering/
 │   ├── jerarquico.py           # Ward, Silhouette y resumen por grupo
@@ -46,6 +47,8 @@ src/
 Los CSV requeridos en `data/` son `001_alumnos.csv`, `002_regularidades.csv`, `003_historia_academica.csv` y `000_materias_planes.csv`. Las rutas de entrada se resuelven desde el proyecto.
 
 La entrada verificada contiene 2.587 estudiantes y diez variables, estandarizadas con desvío muestral (`ddof=1`). Los identificadores y etiquetas de grupos quedan fuera de la matriz. Se conserva `deserto`, como en el estudio original: su distribución entre grupos es descriptiva y no constituye validación independiente de la deserción.
+
+Los esquemas `VariablesOriginales` y `VariablesEstandarizadas`, en `src/data/esquemas.py`, declaran las diez columnas en su orden esperado y sus tipos. Los originales conservan días, conteos y proporciones; los conteos también se almacenan como `float64`. En ellos, `deserto` solo admite 0 o 1; en la matriz está estandarizado. Pandera valida columnas, orden, tipos y ausencia de nulos al preparar la entrada. Las tablas y los identificadores se corresponden por posición (`iloc`), aunque sus índices sean distintos.
 
 ## Resultados básicos
 
