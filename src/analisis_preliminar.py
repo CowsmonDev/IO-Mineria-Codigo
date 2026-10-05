@@ -66,6 +66,8 @@ def main(datos=None):
         )
     )
 
+    # Guardar la identidad antes de quitar id_alumno de las variables numéricas.
+    ids_alumnos = alumnos_s_avanzados["id_alumno"].to_numpy(copy=True)
     alumnos_s_avanzados = preparar_variables(alumnos_s_avanzados)
     analizar_lasso(alumnos_s_avanzados)
 
@@ -184,6 +186,8 @@ def main(datos=None):
     print(f"Dendrogramas PDF guardados en: {Path('output/dendrogramas').resolve()}")
 
     return {
+        "ids_alumnos": ids_alumnos,
+        "fecha_analisis": datos["fecha_analisis"],
         "alumnos_s_avanzados": alumnos_s_avanzados,
         "alumnos_s_avanzados_sc": alumnos_s_avanzados_sc,
         "alumnos_s_avanzados_dist_mat": alumnos_s_avanzados_dist_mat,

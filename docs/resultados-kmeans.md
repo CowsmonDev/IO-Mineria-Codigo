@@ -1,0 +1,48 @@
+# Primera comparación K-Means
+
+Ejecución realizada el 4 de octubre de 2026, con fecha de análisis fijada al 1 de octubre de 2026 para conservar la entrada de la verificación de la migración.
+
+## Entrada y protocolo
+
+Se utilizaron 2.587 estudiantes y las siguientes diez variables, en este orden: `tiempo_desde_ingreso`, `cursadas_aprobadas`, `cursadas_promocionadas`, `cursadas_desaprobadas`, `materias_anotado_ult_anio`, `finales_aprobados`, `finales_desaprobados`, `dias_dsd_ultimo_final`, `porc_finales` y `deserto`.
+
+La matriz se contrastó con `output/comparacion_r_2026-10-01/r/datos_estandarizados.csv`: contiene el mismo multiconjunto de filas, con diferencias numéricas inferiores a 1e-9. El orden de algunas filas difiere entre R y Python; en esta comparación ambos métodos usan el mismo orden de Python y se conserva el identificador por fila.
+
+Se conservó la estandarización con desvío muestral (`ddof=1`). Las etiquetas jerárquicas y los identificadores no integraron la matriz de entrada. `deserto` sí integra la entrada, como en el estudio original; los porcentajes de deserción de los grupos no son una evaluación independiente ni una medida predictiva.
+
+K-Means: siete grupos, inicialización `k-means++`, 25 inicializaciones por ejecución, Lloyd, máximo de 300 iteraciones y tolerancia 0,0001. La semilla principal es 123, fijada antes de interpretar los resultados. Se realizaron otras nueve ejecuciones con semillas 0 a 8. Cada ejecución conserva el resultado de menor inercia entre sus 25 inicializaciones.
+
+## Resultados iniciales
+
+| Método | Grupos | Estudiantes evaluados | Silhouette | Inercia K-Means | ARI contra jerárquico |
+|---|---:|---:|---:|---:|---:|
+| Jerárquico | 7 | 2.587 | 0,295444 | No aplica | 1 |
+| K-Means, semilla 123 | 7 | 2.587 | 0,365474 | 6.850,871199 | 0,670893 |
+
+Silhouette se calculó con distancia euclídea sobre toda la población en ambos métodos. El valor de la referencia coincide con el registrado durante la comparación con R. ARI cuantifica concordancia de integrantes sin depender de los números de las etiquetas; no expresa el porcentaje de estudiantes coincidentes ni indica que el jerárquico sea una clasificación verdadera.
+
+| Grupo (etiquetas independientes) | Tamaño jerárquico | Tamaño K-Means |
+|---|---:|---:|
+| 1 | 51 | 506 |
+| 2 | 332 | 1.101 |
+| 3 | 236 | 73 |
+| 4 | 74 | 326 |
+| 5 | 355 | 95 |
+| 6 | 903 | 405 |
+| 7 | 636 | 81 |
+
+Las columnas de tamaños no implican una correspondencia entre grupos. Esa correspondencia se consulta en las tablas y mapas de calor exportados.
+
+## Estabilidad y límites de interpretación
+
+El ARI mínimo entre pares de semillas fue 0,666514. Las inercias variaron entre 6.849,220212 y 6.875,447692; los Silhouette, entre 0,365474 y 0,446351. Ninguna ejecución alcanzó el límite de 300 iteraciones.
+
+La semilla 6 produjo la mayor inercia y el mayor Silhouette del conjunto, mostrando que ambos criterios pueden favorecer resultados distintos. Se conserva la semilla principal prefijada y se informa esta variación. Todavía corresponde interpretar la composición y los perfiles, y estudiar si aumentar las inicializaciones mejora la estabilidad antes de extraer conclusiones definitivas. Estas repeticiones examinan sensibilidad a la inicialización, no estabilidad frente a cambios de muestra.
+
+## Reproducción y archivos
+
+```bash
+ANALYSIS_DATE=2026-10-01 uv run python main.py --analisis kmeans
+```
+
+Tablas y configuración: `output/kmeans/`. Gráficos: `output/graficos/kmeans/`. El [README](../README.md#primera-comparación-k-means-con-siete-grupos) describe cada archivo. `configuracion.json` registra las versiones y las huellas de la matriz de entrada y de las etiquetas de referencia. Las salidas estudiantiles están excluidas de Git.

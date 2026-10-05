@@ -127,3 +127,43 @@ El producto final deberá presentar una comparación reproducible de las técnic
 
 - Clementi, G. y Salias, L. G. *Minería de datos y técnicas de clustering para predecir deserción universitaria*. Informe de Trabajo Final de Investigación Operativa, UNICEN, 2025. En particular, secciones 3.2 y 5.
 - Reunión con el profesor Gustavo Illescas del 17 de septiembre de 2026. Transcripción utilizada para precisar el origen, el foco comparativo y el criterio de ajuste del alcance.
+
+## Primera comparación: K-Means con siete grupos
+
+Para ejecutar preparación, referencia jerárquica y comparación K-Means, sin ejecutar el análisis extra:
+
+```bash
+ANALYSIS_DATE=2026-10-01 uv run python main.py --analisis kmeans
+```
+
+La fecha corresponde a la verificación de la migración y debe conservarse para comparar la misma entrada. Sin `ANALYSIS_DATE`, se utiliza el día de ejecución. El comando original sin argumentos sigue ejecutando el análisis extra heredado.
+
+`src/clustering/kmeans.py` recibe el diccionario del análisis preliminar. Utiliza exactamente `alumnos_s_avanzados_sc`, sin etiquetas como predictores, y verifica el orden de filas contra la tabla original. Conserva `id_alumno` por separado para exportar las asignaciones. La entrada incluye `deserto`, como en el jerárquico: sus diferencias entre perfiles son descriptivas y no constituyen una validación independiente de la deserción.
+
+El protocolo fija `k=7`, `init="k-means++"`, `n_init=25`, `algorithm="lloyd"`, `max_iter=300` y `tol=1e-4`. La ejecución presentada utiliza la semilla 123, seleccionando la menor inercia entre sus 25 inicializaciones. La estabilidad se evalúa también con semillas 0 a 8, conservando todos los demás parámetros. No se elige la semilla por su Silhouette ni por su coincidencia con el jerárquico.
+
+Las tablas se guardan en `output/kmeans/`:
+
+| Archivo | Contenido |
+|---|---|
+| `asignaciones.csv` | Fila de entrada, identificador, grupos de ambos métodos y Silhouette individual. |
+| `perfiles.csv` | Cantidad, proporción, media, mediana y desvío muestral de cada variable en unidades originales. |
+| `tamanos.csv` | Tamaños y proporciones de ambos métodos. |
+| `correspondencia.csv` | Cantidades: filas jerárquicas, columnas K-Means. |
+| `correspondencia_proporciones.csv` | Correspondencia normalizada por cada grupo jerárquico. |
+| `metricas.csv` | Silhouette de ambos métodos sobre todos los estudiantes, inercia K-Means y ARI contra la referencia. |
+| `estabilidad.csv` | Inercia, iteraciones, Silhouette y ARI por semilla. |
+| `asignaciones_estabilidad.csv` | Asignaciones de cada semilla por estudiante. |
+| `ari_entre_semillas.csv` | ARI para todos los pares de ejecuciones. |
+| `centros_estandarizados.csv` | Centros de la ejecución principal. |
+| `configuracion.json` | Fecha, variables, dimensiones, parámetros, semillas, versiones y huellas de entrada y referencia. |
+
+En `output/graficos/kmeans/` se generan seis PNG: correspondencia, correspondencia en proporciones, tamaños, Silhouette, perfiles estandarizados y estabilidad. Los números de los grupos no indican correspondencia entre métodos ni entre semillas; la tabla de correspondencia y ARI permiten compararlos sin esa suposición. ARI mide concordancia entre particiones, no calidad del agrupamiento.
+
+La primera ejecución y sus límites se registran en [docs/resultados-kmeans.md](docs/resultados-kmeans.md). Los archivos de salida con información estudiantil permanecen excluidos de Git.
+
+Para verificar el contrato de entrada y las exportaciones:
+
+```bash
+uv run pytest -q
+```

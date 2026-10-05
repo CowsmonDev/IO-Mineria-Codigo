@@ -50,10 +50,10 @@ K-Means y DBSCAN recibirán la misma matriz estandarizada. K-Means agrupa alrede
 
 Si Silhouette de DBSCAN se calcula excluyendo el ruido, se informarán la cantidad y proporción de estudiantes incluidos. No se presentará ese valor como si tuviera la misma cobertura que una evaluación sobre toda la población.
 
-## Decisiones todavía pendientes
+## Estado del protocolo y decisiones pendientes
 
-- Registrar la lista exacta de variables y la cantidad de estudiantes de la entrada común.
-- Definir el protocolo de K-Means: cantidad de grupos, inicialización, repeticiones y semillas. Siete grupos constituye el punto de partida propuesto para contrastar con la referencia.
+- La entrada común quedó registrada para la fecha 2026-10-01: 2.587 estudiantes y diez variables; ver [resultados-kmeans.md](resultados-kmeans.md).
+- El protocolo inicial de K-Means quedó implementado: siete grupos, k-means++, 25 inicializaciones, semilla principal 123 y nueve semillas adicionales (0 a 8). La variación observada requiere análisis antes de concluir; ver [resultados-kmeans.md](resultados-kmeans.md).
 - Definir el protocolo de DBSCAN: valores de `eps`, `min_samples` y criterio de elección de la configuración analizada.
 - Acordar si se explorarán otras cantidades de grupos para K-Means como análisis complementario.
 

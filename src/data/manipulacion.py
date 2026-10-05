@@ -439,6 +439,7 @@ def main():
 
     # Entregar los datos directamente a la siguiente etapa.
     return {
+        "fecha_analisis": _fecha_actual.date().isoformat(),
         "alumnos_s_avanzados": alumnos_s_avanzados,
         "alumnos_s_avanzados_desaprob_mat_IS": alumnos_s_avanzados_desaprob_mat_IS,
         "alumnos_desertores": alumnos_desertores,

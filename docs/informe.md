@@ -82,15 +82,15 @@ El informe original utiliza distancia euclídea y enlace Ward (`ward.D2` en R). 
 
 K-Means forma una cantidad prefijada de grupos alrededor de centros, minimizando la suma de distancias euclídeas cuadradas entre las observaciones y el centro de su grupo.
 
-Como primera comparación se propone utilizar siete grupos, manteniendo la cantidad de la referencia jerárquica. La configuración definitiva y cualquier exploración de otras cantidades se registrarán antes de interpretar sus resultados.
+La primera comparación utiliza siete grupos, manteniendo la cantidad de la referencia jerárquica. Se conserva una ejecución principal prefijada y se evalúa la sensibilidad a la inicialización. La ejecución inicial y sus resultados se registran en [resultados-kmeans.md](resultados-kmeans.md).
 
 | Decisión | Configuración |
 |---|---|
-| Cantidad de grupos | Propuesta inicial: 7; protocolo por confirmar |
-| Inicialización | [Definir] |
-| Cantidad de inicializaciones por ejecución | [Definir] |
-| Semillas y repeticiones | [Definir] |
-| Criterio de selección de la ejecución presentada | [Definir] |
+| Cantidad de grupos | 7 |
+| Inicialización | k-means++; algoritmo Lloyd, máximo 300 iteraciones y tolerancia 0,0001 |
+| Cantidad de inicializaciones por ejecución | 25 |
+| Semillas y repeticiones | Principal: 123; adicionales: 0 a 8 |
+| Criterio de selección de la ejecución presentada | Semilla 123 prefijada; menor inercia entre sus 25 inicializaciones |
 
 ### 4.3. DBSCAN
 
@@ -117,7 +117,9 @@ Silhouette se informará cuando la partición permita calcularlo. Si se excluye 
 
 Cada experimento conservará su configuración, las versiones de las herramientas utilizadas, las asignaciones obtenidas, las métricas y las tablas o gráficos necesarios para reproducir e interpretar el resultado.
 
-[Completar las instrucciones de ejecución y las rutas de los resultados cuando se implemente el protocolo.]
+Para K-Means se ejecuta `ANALYSIS_DATE=2026-10-01 uv run python main.py --analisis kmeans`. Las tablas y la configuración se exportan en `output/kmeans/`, y los gráficos en `output/graficos/kmeans/`. El [README](../README.md#primera-comparación-k-means-con-siete-grupos) describe las salidas y el protocolo.
+
+[Completar el registro de DBSCAN cuando se implemente.]
 
 ## 5. Resultados
 
@@ -127,7 +129,9 @@ Cada experimento conservará su configuración, las versiones de las herramienta
 
 ### 5.2. Resultados de K-Means
 
-[Presentar la configuración, los tamaños de los grupos, las métricas, los perfiles y la variación observada entre ejecuciones.]
+La ejecución principal sobre 2.587 estudiantes obtuvo Silhouette de 0,365474, frente a 0,295444 del jerárquico, y ARI contra la referencia de 0,670893. El mínimo ARI entre semillas fue 0,666514, por lo que existe sensibilidad a la inicialización que debe considerarse al interpretar los perfiles. El detalle reproducible está en [resultados-kmeans.md](resultados-kmeans.md).
+
+[Completar la interpretación de los perfiles a partir de las tablas exportadas.]
 
 ### 5.3. Resultados de DBSCAN
 
