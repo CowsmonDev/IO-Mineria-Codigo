@@ -5,7 +5,7 @@ import pandas as pd
 from scipy.cluster.hierarchy import linkage
 from sklearn.metrics import silhouette_samples
 
-from main import ejecutar
+from main import main
 from src.clustering import jerarquico
 
 
@@ -32,8 +32,10 @@ def test_ejecucion_genera_graficos_aunque_dbscan_no_tenga_silhouette(
         }
 
     monkeypatch.setattr(jerarquico, "analizar", referencia_sintetica)
+    monkeypatch.setattr("main.preparar_datos", lambda fecha_analisis: {})
+    monkeypatch.setattr("main.preparar_entrada", lambda datos: entrada)
     original, matriz = entrada["originales"].copy(), entrada["matriz"].copy()
-    resultado = ejecutar(entrada, salida=tmp_path, eps=100, min_samples=5)
+    resultado = main(salida=tmp_path, eps=100, min_samples=5)
     pd.testing.assert_frame_equal(entrada["originales"], original)
     pd.testing.assert_frame_equal(entrada["matriz"], matriz)
     np.testing.assert_array_equal(

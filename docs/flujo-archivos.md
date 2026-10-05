@@ -7,7 +7,7 @@ flowchart TD
     MAIN["main.py · main<br/>Fecha y parámetros"] --> MAN["data/manipulacion.py<br/>Lectura, filtros e indicadores"]
     CSV["data/*.csv"] --> MAN
     MAN --> PRE["data/preparacion.py<br/>IDs, valores originales y matriz estandarizada"]
-    PRE --> EJ["main.py · ejecutar<br/>Una misma entrada para los tres métodos"]
+    PRE --> EJ["main.py<br/>Una misma entrada para los tres métodos"]
     EJ --> J["clustering/jerarquico.py<br/>Ward, Silhouette y resumen"]
     EJ --> K["clustering/kmeans.py<br/>K-Means, Silhouette y resumen"]
     EJ --> D["clustering/dbscan.py<br/>Parámetros explícitos, ruido, Silhouette y vecinos"]

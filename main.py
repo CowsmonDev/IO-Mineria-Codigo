@@ -15,8 +15,17 @@ RAIZ = Path(__file__).resolve().parent
 FECHA_REFERENCIA = "2026-10-01"
 
 
-def ejecutar(entrada, *, salida, eps=dbscan.EPS, min_samples=dbscan.MIN_SAMPLES):
-    """Ejecuta cada método sobre la misma entrada y muestra resultados básicos."""
+def main(*, fecha=None, salida=None, eps=dbscan.EPS, min_samples=dbscan.MIN_SAMPLES):
+    """Prepara la entrada común, ejecuta los métodos y genera sus salidas."""
+    fecha = (
+        pd.Timestamp(fecha or os.environ.get("ANALYSIS_DATE") or FECHA_REFERENCIA)
+        .date()
+        .isoformat()
+    )
+    salida = Path(salida) if salida is not None else RAIZ / "output"
+    print(f"Etapa 1/5: preparación común (fecha {fecha})", flush=True)
+    entrada = preparar_entrada(preparar_datos(fecha_analisis=fecha))
+
     validar_entrada(entrada)
     matriz = entrada["matriz"].to_numpy(dtype=float, copy=True)
     originales = entrada["originales"]
@@ -44,19 +53,6 @@ def ejecutar(entrada, *, salida, eps=dbscan.EPS, min_samples=dbscan.MIN_SAMPLES)
             print(f"Ruido: {resultado['ruido']}/{len(matriz)} estudiantes")
     print(f"\nGráficos guardados en: {Path(salida).resolve()}")
     return {"entrada": entrada, "resultados": resultados}
-
-
-def main(*, fecha=None, salida=None, eps=dbscan.EPS, min_samples=dbscan.MIN_SAMPLES):
-    """Fecha predeterminada: referencia verificada; ANALYSIS_DATE sigue soportada."""
-    fecha = (
-        pd.Timestamp(fecha or os.environ.get("ANALYSIS_DATE") or FECHA_REFERENCIA)
-        .date()
-        .isoformat()
-    )
-    salida = Path(salida) if salida is not None else RAIZ / "output"
-    print(f"Etapa 1/5: preparación común (fecha {fecha})", flush=True)
-    entrada = preparar_entrada(preparar_datos(fecha_analisis=fecha))
-    return ejecutar(entrada, salida=salida, eps=eps, min_samples=min_samples)
 
 
 if __name__ == "__main__":
