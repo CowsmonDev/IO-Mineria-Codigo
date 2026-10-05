@@ -4,7 +4,43 @@ import pandas as pd
 import pytest
 from pandera.errors import SchemaError, SchemaErrors
 
-from src.data.preparacion import validar_entrada
+from src.data.preparacion import preparar_entrada, validar_entrada
+
+
+def test_preparar_entrada_carga_datos_con_la_fecha_solicitada(entrada, monkeypatch):
+    alumnos = entrada["originales"].copy()
+    for columna in ("tiempo_desde_ingreso", "dias_dsd_ultimo_final"):
+        alumnos[columna] = pd.to_timedelta(alumnos[columna], unit="D")
+    alumnos["id_alumno"] = entrada["ids_alumnos"]
+    for columna in (
+        "nota_finales_ult_anio",
+        "cursadas_regulares",
+        "notas_cursadas_ult_anio",
+        "relacion_finales_cursadas",
+        "porc_cursadas",
+        "total_materias_finalizadas",
+        "localidad_nacimiento",
+        "fecha_inscripcion",
+        "cambio_plan",
+        "plan",
+        "carrera",
+        "calidad",
+    ):
+        alumnos[columna] = 0
+    llamadas = []
+
+    def preparar_datos_academicos(*, fecha_analisis):
+        llamadas.append(fecha_analisis)
+        return {"alumnos_s_avanzados": alumnos, "fecha_analisis": fecha_analisis}
+
+    monkeypatch.setattr(
+        "src.data.preparacion.preparar_datos_academicos", preparar_datos_academicos
+    )
+    resultado = preparar_entrada(fecha_analisis="2026-10-01")
+    assert llamadas == ["2026-10-01"]
+    assert resultado["fecha_analisis"] == "2026-10-01"
+    pd.testing.assert_frame_equal(resultado["originales"], entrada["originales"])
+    pd.testing.assert_frame_equal(resultado["matriz"], entrada["matriz"])
 
 
 def test_esquemas_conservan_valores_y_permiten_deserto_estandarizado(entrada):

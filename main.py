@@ -7,7 +7,6 @@ from pathlib import Path
 import pandas as pd
 
 from src.clustering import dbscan, jerarquico, kmeans
-from src.data.manipulacion import main as preparar_datos
 from src.data.preparacion import preparar_entrada, validar_entrada
 from src.visualizacion import generar
 
@@ -24,7 +23,7 @@ def main(*, fecha=None, salida=None, eps=dbscan.EPS, min_samples=dbscan.MIN_SAMP
     )
     salida = Path(salida) if salida is not None else RAIZ / "output"
     print(f"Etapa 1/5: preparación común (fecha {fecha})", flush=True)
-    entrada = preparar_entrada(preparar_datos(fecha_analisis=fecha))
+    entrada = preparar_entrada(fecha_analisis=fecha)
 
     validar_entrada(entrada)
     matriz = entrada["matriz"].to_numpy(dtype=float, copy=True)

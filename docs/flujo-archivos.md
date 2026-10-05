@@ -1,12 +1,15 @@
 # Flujo actual a nivel de archivos
 
-`main.py` coordina las llamadas y pasa los datos en memoria. Las ramas del diagrama representan el recorrido de los datos: los algoritmos se ejecutan en secuencia.
+`main.py` solicita la entrada a `preparacion.py`, que carga los datos mediante `manipulacion.py`. Luego coordina los algoritmos y pasa la entrada en memoria. Los algoritmos se ejecutan en secuencia.
 
 ```mermaid
 flowchart TD
-    MAIN["main.py · main<br/>Fecha y parámetros"] --> MAN["data/manipulacion.py<br/>Lectura, filtros e indicadores"]
+    MAIN["main.py · main<br/>Fecha y parámetros"] --> PRE["data/preparacion.py · preparar_entrada<br/>IDs, valores originales y matriz estandarizada"]
+    PRE -- "Carga con fecha de análisis" --> MAN["data/manipulacion.py · preparar_datos_academicos<br/>Lectura, filtros e indicadores"]
     CSV["data/*.csv"] --> MAN
-    MAN --> PRE["data/preparacion.py<br/>IDs, valores originales y matriz estandarizada"]
+    MAN -- "Datos académicos" --> PRE
+    LASSO["lasso.py · main"] -- "Solicita entrada" --> PRE
+    PRE -- "originales" --> LASSOFIT["lasso.py · analizar<br/>Regresión logística LASSO"]
     PRE --> EJ["main.py<br/>Una misma entrada para los tres métodos"]
     EJ --> J["clustering/jerarquico.py<br/>Ward, Silhouette y resumen"]
     EJ --> K["clustering/kmeans.py<br/>K-Means, Silhouette y resumen"]

@@ -5,6 +5,8 @@ import pandas as pd
 from glmnet import LogitNet
 from sklearn.model_selection import KFold
 
+from src.data.preparacion import preparar_entrada
+
 
 def analizar(alumnos_s_avanzados):
     """Ajusta el modelo y muestra sus coeficientes en las unidades originales."""
@@ -65,12 +67,10 @@ def analizar(alumnos_s_avanzados):
     return {"modelo": modelo_lasso, "coeficientes": coeficientes_lasso}
 
 
-def main():
+def main(*, fecha_analisis=None):
     """Ejecuta el antecedente LASSO por separado de la comparación."""
-    from .data.manipulacion import main as preparar_datos
-    from .data.preparacion import preparar_variables
-
-    return analizar(preparar_variables(preparar_datos()["alumnos_s_avanzados"]))
+    entrada = preparar_entrada(fecha_analisis=fecha_analisis)
+    return analizar(entrada["originales"])
 
 
 if __name__ == "__main__":

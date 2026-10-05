@@ -1,4 +1,4 @@
-"""Prepara los datos académicos y devuelve los datos para el análisis preliminar."""
+"""Lee los CSV académicos, filtra la población y calcula sus indicadores."""
 
 import os
 from pathlib import Path
@@ -7,7 +7,8 @@ import numpy as np
 import pandas as pd
 
 
-def main(fecha_analisis=None):
+def preparar_datos_academicos(fecha_analisis=None):
+    """Carga los datos y devuelve las poblaciones con sus indicadores académicos."""
     directorio_datos = Path(__file__).resolve().parents[2] / "data"
 
     # Importaciones y lectura de datos
@@ -445,4 +446,4 @@ def main(fecha_analisis=None):
 
 
 if __name__ == "__main__":
-    main()
+    preparar_datos_academicos()

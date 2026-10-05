@@ -32,10 +32,13 @@ def test_ejecucion_genera_graficos_aunque_dbscan_no_tenga_silhouette(
         }
 
     monkeypatch.setattr(jerarquico, "analizar", referencia_sintetica)
-    monkeypatch.setattr("main.preparar_datos", lambda fecha_analisis: {})
-    monkeypatch.setattr("main.preparar_entrada", lambda datos: entrada)
+    def preparar_entrada_sintetica(*, fecha_analisis):
+        assert fecha_analisis == "2026-10-01"
+        return entrada
+
+    monkeypatch.setattr("main.preparar_entrada", preparar_entrada_sintetica)
     original, matriz = entrada["originales"].copy(), entrada["matriz"].copy()
-    resultado = main(salida=tmp_path, eps=100, min_samples=5)
+    resultado = main(fecha="2026-10-01", salida=tmp_path, eps=100, min_samples=5)
     pd.testing.assert_frame_equal(entrada["originales"], original)
     pd.testing.assert_frame_equal(entrada["matriz"], matriz)
     np.testing.assert_array_equal(

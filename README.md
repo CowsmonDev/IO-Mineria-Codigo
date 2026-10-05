@@ -19,6 +19,8 @@ La preparación se ejecuta una sola vez. La fecha predeterminada es `2026-10-01`
 uv run python main.py --fecha 2026-10-01
 ```
 
+`main.py` llama a `preparar_entrada(fecha_analisis=fecha)`. Esa función obtiene los datos directamente de `manipulacion.preparar_datos_academicos`; los consumidores no necesitan cargar ni pasar las tablas. LASSO utiliza la misma preparación y toma sus variables originales.
+
 DBSCAN ejecuta una configuración explícita, inicialmente `eps=1.5` y `min_samples=5`, retomando el antecedente original. Se pueden cambiar uno o ambos parámetros y guardar los gráficos en otra carpeta:
 
 ```bash

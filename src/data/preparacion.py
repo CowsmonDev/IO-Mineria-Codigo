@@ -9,6 +9,7 @@ from src.data.esquemas import (
     VariablesEstandarizadas,
     VariablesOriginales,
 )
+from src.data.manipulacion import preparar_datos_academicos
 
 
 def preparar_variables(alumnos: pd.DataFrame) -> DataFrame[VariablesOriginales]:
@@ -59,8 +60,9 @@ def estandarizar(
     return alumnos_s_avanzados_sc
 
 
-def preparar_entrada(datos) -> EntradaClustering:
-    """Conserva identidad, unidades originales y matriz común sin etiquetas."""
+def preparar_entrada(*, fecha_analisis=None) -> EntradaClustering:
+    """Carga los datos y prepara identidad, originales y matriz sin etiquetas."""
+    datos = preparar_datos_academicos(fecha_analisis=fecha_analisis)
     alumnos = datos["alumnos_s_avanzados"]
     originales = preparar_variables(alumnos).reset_index(drop=True)
     entrada: EntradaClustering = {
