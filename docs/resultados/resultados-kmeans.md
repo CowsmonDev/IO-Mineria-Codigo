@@ -1,4 +1,14 @@
-# Primera comparación K-Means
+# K-Means: ejecución principal y antecedentes
+
+## Propósito y estado actual
+
+K-Means genera una agrupación propia sobre los mismos alumnos y atributos que recibe el jerárquico. La pregunta es cómo cambian los integrantes y las características de los grupos. Los siete grupos actuales se fijaron para comparar una partición con la misma cantidad que la referencia; no se impone que sus miembros coincidan.
+
+La ejecución actual conserva k=7, k-means++, 25 inicializaciones, semilla 123 y los resultados principales de esta nota. Muestra resúmenes y genera gráficos individuales. Las correspondencias, ARI y repeticiones descritas más abajo pertenecen a la primera implementación y no se calculan automáticamente en el flujo actual.
+
+La referencia jerárquica aquí usada es la ejecución reproducible con fecha `2026-10-01`, cuya equivalencia con R está verificada. Reproducir las cifras o la fecha de los PDF no es un requisito. Ver [criterios del trabajo](../criterios-del-trabajo.md#equivalencia-rpython-y-referencia-de-trabajo).
+
+## Registro histórico de la primera comparación
 
 Ejecución realizada el 4 de octubre de 2026, con fecha de análisis fijada al 1 de octubre de 2026 para conservar la entrada de la verificación de la migración.
 
@@ -31,7 +41,7 @@ Silhouette se calculó con distancia euclídea sobre toda la población en ambos
 | 6 | 903 | 405 |
 | 7 | 636 | 81 |
 
-Las columnas de tamaños no implican una correspondencia entre grupos. Esa correspondencia se consulta en las tablas y mapas de calor exportados.
+Las columnas de tamaños no implican una correspondencia entre grupos. La primera implementación exportaba tablas y mapas de calor para consultarla; el flujo actual no los genera. La nueva comparación deberá estudiar esa correspondencia e interpretar los perfiles, sin depender del número de etiqueta.
 
 ## Estabilidad y límites de interpretación
 
@@ -45,4 +55,4 @@ La semilla 6 produjo la mayor inercia y el mayor Silhouette del conjunto, mostra
 uv run python main.py --fecha 2026-10-01
 ```
 
-Esta nota documenta la primera implementación, que generó tablas en `output/kmeans/` y gráficos en `output/graficos/kmeans/`. Las métricas de correspondencia y estabilidad descritas arriba pertenecen a esa ejecución histórica. La ejecución actual conserva el agrupamiento principal, muestra sus resultados básicos en consola y genera PNG en `output/<método>/graficos/`; no ejecuta la comparación ni exporta tablas. El [README](../README.md) describe el alcance actual.
+Esta nota documenta la primera implementación, que generó tablas en `output/kmeans/` y gráficos en `output/graficos/kmeans/`. Las métricas de correspondencia y estabilidad descritas arriba pertenecen a esa ejecución histórica. La ejecución actual conserva el agrupamiento principal, muestra sus resultados básicos en consola y genera PNG en `output/<método>/graficos/`; no ejecuta la comparación ni exporta tablas. El [README](../../README.md) describe el alcance actual.
