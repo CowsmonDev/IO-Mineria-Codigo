@@ -8,7 +8,7 @@ import pandas as pd
 
 from src.clustering import dbscan, jerarquico, kmeans
 from src.data.preparacion import preparar_entrada, validar_entrada
-from src.visualizacion import generar
+from src.visualizacion import generar, generar_pruebas_dbscan
 
 RAIZ = Path(__file__).resolve().parent
 FECHA_REFERENCIA = "2026-10-01"
@@ -36,8 +36,11 @@ def main(*, fecha=None, salida=None, eps=dbscan.EPS, min_samples=dbscan.MIN_SAMP
     resultados["dbscan"] = dbscan.analizar(
         matriz, originales, eps=eps, min_samples=min_samples
     )
+    print("DBSCAN: cinco casos fijos sobre la misma entrada", flush=True)
+    pruebas_dbscan = dbscan.pruebas(matriz, originales)
     print("Etapa 5/5: gráficos", flush=True)
     generar(entrada, resultados, Path(salida))
+    generar_pruebas_dbscan(entrada, pruebas_dbscan, Path(salida))
     jerarquico.guardar_resumen(resultados["jerarquico"], Path(salida) / "jerarquico")
     for metodo, resultado in resultados.items():
         print(f"\n{metodo}: {resultado['parametros']}")
@@ -50,8 +53,37 @@ def main(*, fecha=None, salida=None, eps=dbscan.EPS, min_samples=dbscan.MIN_SAMP
             )
         if metodo == "dbscan":
             print(f"Ruido: {resultado['ruido']}/{len(matriz)} estudiantes")
+    filas = []
+    for caso in pruebas_dbscan:
+        resultado = caso["resultado"]
+        tamanos = resultado["resumen"].drop(index=-1, errors="ignore")["cantidad"]
+        filas.append(
+            {
+                "caso": caso["nombre"],
+                **resultado["parametros"],
+                "grupos": resultado["grupos"],
+                "ruido_pct": 100 * resultado["ruido"] / len(matriz),
+                "mayor_pct_agrupados": (
+                    100 * tamanos.max() / tamanos.sum()
+                    if len(tamanos)
+                    else float("nan")
+                ),
+                "silhouette_sin_ruido": resultado["silhouette_promedio"],
+                "evaluados_silhouette": resultado["poblacion_silhouette"],
+            }
+        )
+        print(f"\nDBSCAN — {caso['descripcion']}: {resultado['parametros']}")
+        print(resultado["resumen"].to_string())
+        if resultado["motivo_silhouette"]:
+            print(resultado["motivo_silhouette"])
+    print("\nDBSCAN — comparación de casos fijos (grupo mayor excluye ruido):")
+    print(pd.DataFrame(filas).to_string(index=False, float_format=lambda v: f"{v:.4f}"))
     print(f"\nGráficos guardados en: {Path(salida).resolve()}")
-    return {"entrada": entrada, "resultados": resultados}
+    return {
+        "entrada": entrada,
+        "resultados": resultados,
+        "pruebas_dbscan": pruebas_dbscan,
+    }
 
 
 if __name__ == "__main__":

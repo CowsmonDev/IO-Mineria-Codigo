@@ -22,6 +22,10 @@ El output principal es la asignación de cada alumno a un grupo. A partir de ell
 
 - [Siete grupos y concordancia de DBSCAN](resultados/concordancia-dbscan.md): búsqueda acotada, ruido, correspondencia con el jerárquico y sensibilidad.
 
+## Diagnósticos auxiliares
+
+- [Retirada de `deserto`](resultados/diagnostico-sin-deserto.md): prueba aparte, excluida de la comparación principal; los diez atributos originales se conservan.
+
 ## Referencias originales
 
 - [Informe de Clementi y Salias](referencias/IO-Mineria-Informe-Clementi-Salias.pdf): sección 4.3, perfiles de clusters; sección 5, conclusiones y trabajos futuros.

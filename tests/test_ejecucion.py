@@ -6,7 +6,7 @@ from scipy.cluster.hierarchy import linkage
 from sklearn.metrics import silhouette_samples
 
 from main import main
-from src.clustering import jerarquico
+from src.clustering import dbscan, jerarquico
 
 
 def test_ejecucion_genera_graficos_aunque_dbscan_no_tenga_silhouette(
@@ -32,6 +32,7 @@ def test_ejecucion_genera_graficos_aunque_dbscan_no_tenga_silhouette(
         }
 
     monkeypatch.setattr(jerarquico, "analizar", referencia_sintetica)
+
     def preparar_entrada_sintetica(*, fecha_analisis):
         assert fecha_analisis == "2026-10-01"
         return entrada
@@ -46,6 +47,20 @@ def test_ejecucion_genera_graficos_aunque_dbscan_no_tenga_silhouette(
     )
     assert set(resultado["resultados"]) == {"jerarquico", "kmeans", "dbscan"}
     assert resultado["resultados"]["dbscan"]["grupos"] == 1
+    casos = resultado["pruebas_dbscan"]
+    assert [caso["nombre"] for caso in casos] == [
+        config[0] for config in dbscan.CONFIGURACIONES_PRUEBAS
+    ]
+    for caso, (_, _, eps, minimo) in zip(casos, dbscan.CONFIGURACIONES_PRUEBAS):
+        r = caso["resultado"]
+        assert r["parametros"]["eps"] == eps
+        assert r["parametros"]["min_samples"] == minimo
+        assert len(r["etiquetas"]) == len(original)
+        assert r["resumen"]["cantidad"].sum() == len(original)
+        carpeta = tmp_path / "dbscan/experimentos" / caso["nombre"] / "graficos"
+        for nombre in ("tamanos", "silhouette", "vecinos", "perfil_deserto"):
+            assert (carpeta / f"{nombre}.png").is_file()
+    assert (tmp_path / "dbscan/experimentos/graficos/comparacion.png").is_file()
     for metodo in ("jerarquico", "dbscan", "k-means"):
         assert (tmp_path / metodo / "graficos/silhouette.png").is_file()
         assert (tmp_path / metodo / "graficos/tamanos.png").is_file()

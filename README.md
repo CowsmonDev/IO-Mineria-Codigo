@@ -52,7 +52,7 @@ DBSCAN recibe parámetros explícitos. Por ejemplo, para explorar otra configura
 uv run python main.py --eps 0.8 --min-samples 10 --salida output/dbscan/experimentos/dbscan_0_8_10
 ```
 
-Este comando ejecuta los tres métodos y guarda sus resultados en la raíz indicada. Los valores del ejemplo son exploratorios, no una configuración final seleccionada. `min_samples` incluye al propio alumno.
+Este comando ejecuta los tres métodos y los cinco casos fijos de DBSCAN, y guarda sus resultados en la raíz indicada. `--eps` y `--min-samples` modifican la ejecución individual de DBSCAN; los casos fijos conservan sus parámetros. Los valores del ejemplo son exploratorios, no una configuración final seleccionada. `min_samples` incluye al propio alumno.
 
 ## Entrada y resultado
 
@@ -67,7 +67,7 @@ Cada algoritmo devuelve:
 - Silhouette individual y promedio cuando se puede calcular.
 - Información propia del método: árbol jerárquico, centros e inercia de K-Means, o ruido y distancias de vecinos de DBSCAN.
 
-Las etiquetas numéricas son independientes: el grupo 1 de un método no necesariamente corresponde al grupo 1 de otro. Los resultados quedan en memoria al llamar a `main()` desde Python; los parámetros, resúmenes y Silhouette se muestran en consola.
+Las etiquetas numéricas son independientes: el grupo 1 de un método no necesariamente corresponde al grupo 1 de otro. Los resultados quedan en memoria al llamar a `main()` desde Python; los parámetros, resúmenes y Silhouette se muestran en consola. Además de `entrada` y `resultados`, el retorno contiene `pruebas_dbscan`: una lista de casos con `nombre`, `descripcion` y `resultado`. Cada resultado conserva la estructura que devuelve `dbscan.analizar`.
 
 ## Salidas en disco
 
@@ -80,14 +80,16 @@ output/
 │   └── graficos/              # PNG
 └── dbscan/
     ├── graficos/              # PNG, incluido vecinos.png
-    └── experimentos/          # Pruebas locales, candidatos y sus gráficos
+    └── experimentos/          # Cinco casos fijos de main y pruebas locales
+        ├── <caso>/graficos/    # Figuras individuales de DBSCAN
+        └── graficos/          # Comparación de grupos, ruido y concentración
 ```
 
 Se generan tamaños, Silhouette, boxplots de finales aprobados y promocionadas y proporción de deserción. Si Silhouette no está disponible, su figura explica el motivo.
 
 El jerárquico también genera el dendrograma general, Silhouette para k=2 a 15, dendrogramas internos con cuatro subgrupos y zooms de los primeros 50 casos para grupos de al menos 500 alumnos. Los zooms son dendrogramas recalculados sobre esos casos; no representan necesariamente todo el grupo. Se agregan gráficos de deserción individual y avance frente a promocionadas. La curva de Silhouette no modifica el corte h=35.
 
-Actualmente se guarda un CSV para el jerárquico y gráficos por método. La ejecución no genera tablas de correspondencia, ARI, repeticiones de sensibilidad ni búsquedas automáticas de parámetros. Los archivos de experimentos anteriores, si existen, no se actualizan. `data/` y `output/` están excluidos de Git.
+Actualmente se guarda un CSV para el jerárquico y gráficos por método. La ejecución recalcula cinco casos fijos de DBSCAN sobre la misma entrada y muestra una tabla de grupos, ruido, concentración y Silhouette. Genera gráficos individuales por caso y una figura conjunta en `output/dbscan/experimentos/graficos/comparacion.png`. No realiza una búsqueda de parámetros ni selecciona automáticamente un ganador. Las exploraciones históricas y el diagnóstico sin `deserto` no se ejecutan desde `main`. `data/` y `output/` están excluidos de Git.
 
 ## Organización y verificación
 

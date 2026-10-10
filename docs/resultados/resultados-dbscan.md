@@ -50,3 +50,25 @@ Referencia metodológica: [DBSCAN en scikit-learn](https://scikit-learn.org/stab
 ## Búsqueda posterior de siete grupos
 
 La [búsqueda acotada de concordancia](concordancia-dbscan.md) probó 470 configuraciones sobre la misma entrada. Ocho producen siete grupos con hasta 15 % de ruido, pero todas concentran al menos 94,54 % de los alumnos agrupados en uno. No se seleccionó una nueva configuración final. Las pruebas se guardan en `output/dbscan/experimentos/`.
+
+## Casos fijos integrados en `main`
+
+`dbscan.pruebas(matriz, originales)` llama a `analizar` para cinco configuraciones predeterminadas y devuelve una lista de casos con `nombre`, `descripcion` y `resultado`. `main` conserva su ejecución individual de DBSCAN, ejecuta esta lista, imprime los perfiles y una tabla conjunta, y devuelve la lista en `pruebas_dbscan`.
+
+| Caso | eps / min_samples | Propósito | Resultado en 2026-10-01 |
+|---|---|---|---|
+| `referencia` | 1,5 / 5 | Configuración del R original | Un grupo; 7,50 % de ruido |
+| `siete_poco_ruido` | 1,175 / 4 | Mostrar concentración pese a siete grupos y poco ruido | Siete grupos; 9,43 % de ruido; mayor 94,54 % de agrupados |
+| `siete_mas_ruido` | 0,5 / 10 | Mostrar el costo de reducir esa concentración | Siete grupos; 28,95 % de ruido; mayor 81,50 % |
+| `catorce_grupos` | 0,5 / 6 | Mostrar más grupos con concentración persistente | Catorce grupos; 24,43 % de ruido; mayor 77,29 % |
+| `fragmentacion` | 0,18 / 5 | Mostrar fragmentación y exclusión con radio pequeño | 59 grupos; 45,84 % de ruido; mayor 38,83 % |
+
+Son casos ilustrativos seleccionados a partir de las exploraciones, no una nueva búsqueda ni una validación independiente. Los nombres describen resultados en la fecha de referencia; no garantizan esas cantidades al cambiar la fecha o los datos. Todos reciben los diez atributos originales, incluido `deserto`. El diagnóstico que lo retira permanece separado.
+
+Cada caso genera los gráficos habituales en `output/dbscan/experimentos/<caso>/graficos/`. La figura `output/dbscan/experimentos/graficos/comparacion.png` resume cantidad de grupos, porcentaje de ruido y proporción del grupo mayor entre alumnos agrupados. No se agregan exportaciones automáticas de CSV ni evaluaciones ARI al flujo principal.
+
+### Antecedente en R
+
+`Legacy/scripts/script_extra.R` ya ejecutaba DBSCAN sobre `alumnos_s_avanzados_sc`, con `eps=1.5` y `minPts=5` (líneas 27 y 55), y excluía ruido antes de calcular Silhouette. Es una configuración fija, no una exploración de parámetros. No hay resultados de esa ejecución R guardados junto al script que permitan establecer qué partición obtuvieron sus autores. El comentario sobre valores faltantes antes de K-Means no demuestra que el script nunca se haya ejecutado.
+
+El notebook `Legacy/migracion_inicial/03_analisis_extra.ipynb` sí conserva salidas de una ejecución de la migración a Python: DBSCAN produjo un grupo con 2.393 observaciones sin ruido y Silhouette no disponible. Ese registro es evidencia de la migración, no una salida histórica de R.

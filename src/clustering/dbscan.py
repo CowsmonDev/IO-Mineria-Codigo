@@ -8,6 +8,31 @@ from sklearn.neighbors import NearestNeighbors
 EPS = 1.5
 MIN_SAMPLES = 5
 
+# Casos representativos de la exploración; no es una búsqueda ni una selección.
+CONFIGURACIONES_PRUEBAS = (
+    ("referencia", "Configuración original", 1.5, 5),
+    ("siete_poco_ruido", "Siete grupos con poco ruido", 1.175, 4),
+    ("siete_mas_ruido", "Siete grupos con más ruido", 0.5, 10),
+    ("catorce_grupos", "Mayor cantidad de grupos", 0.5, 6),
+    ("fragmentacion", "Radio pequeño y alta fragmentación", 0.18, 5),
+)
+
+
+def pruebas(matriz, originales):
+    """Devuelve una lista de casos fijos, calculados sobre la misma entrada.
+
+    Los nombres describen lo observado en la fecha de referencia, no garantizan
+    una cantidad de grupos al cambiar los datos o la fecha.
+    """
+    return [
+        {
+            "nombre": nombre,
+            "descripcion": descripcion,
+            "resultado": analizar(matriz, originales, eps=eps, min_samples=minimo),
+        }
+        for nombre, descripcion, eps, minimo in CONFIGURACIONES_PRUEBAS
+    ]
+
 
 def analizar(matriz, originales, *, eps=EPS, min_samples=MIN_SAMPLES):
     """Ejecuta una configuración; el ruido -1 se excluye solo de Silhouette."""
