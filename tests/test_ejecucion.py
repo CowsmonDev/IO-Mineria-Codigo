@@ -1,0 +1,93 @@
+"""La ejecución básica conserva la entrada y las salidas originales del jerárquico."""
+
+import numpy as np
+import pandas as pd
+from scipy.cluster.hierarchy import linkage
+from sklearn.metrics import silhouette_samples
+
+from main import main
+from src.methods import jerarquico
+from src.runs import dbscan as run_dbscan
+
+
+def test_ejecucion_genera_graficos_aunque_dbscan_no_tenga_silhouette(
+    entrada, tmp_path, monkeypatch
+):
+    def referencia_sintetica(matriz, originales):
+        # El corte h=35 está fijado para la población real, no para esta muestra pequeña.
+        grupos = np.repeat(np.arange(1, 8), 10)
+        agrupados = originales.assign(grupo=grupos).groupby("grupo")
+        resumen = agrupados.mean()
+        resumen.insert(0, "cantidad", agrupados.size())
+        valores = silhouette_samples(matriz, grupos)
+        return {
+            "etiquetas": grupos,
+            "enlace": linkage(matriz, method="ward"),
+            "resumen": resumen,
+            "silhouette": valores,
+            "silhouette_promedio": valores.mean(),
+            "silhouette_por_k": pd.Series([0.1, 0.2], index=[2, 3]),
+            "poblacion_silhouette": len(matriz),
+            "motivo_silhouette": "",
+            "parametros": {"height": 35},
+        }
+
+    monkeypatch.setattr(jerarquico, "analizar", referencia_sintetica)
+
+    def preparar_entrada_sintetica(*, fecha_analisis):
+        assert fecha_analisis == "2026-10-01"
+        return entrada
+
+    monkeypatch.setattr("src.runs.comparacion.preparar_entrada", preparar_entrada_sintetica)
+    original, matriz = entrada["originales"].copy(), entrada["matriz"].copy()
+    resultado = main(fecha="2026-10-01", salida=tmp_path, eps=100, min_samples=5)
+    pd.testing.assert_frame_equal(entrada["originales"], original)
+    pd.testing.assert_frame_equal(entrada["matriz"], matriz)
+    np.testing.assert_array_equal(
+        resultado["entrada"]["ids_alumnos"], entrada["ids_alumnos"]
+    )
+    assert set(resultado["resultados"]) == {"jerarquico", "kmeans", "dbscan"}
+    assert resultado["resultados"]["dbscan"]["grupos"] == 1
+    casos = resultado["pruebas_dbscan"]
+    assert [caso["nombre"] for caso in casos] == [
+        config[0] for config in run_dbscan.CONFIGURACIONES_PRUEBAS
+    ]
+    for caso, (_, _, eps, minimo) in zip(casos, run_dbscan.CONFIGURACIONES_PRUEBAS):
+        r = caso["resultado"]
+        assert r["parametros"]["eps"] == eps
+        assert r["parametros"]["min_samples"] == minimo
+        assert len(r["etiquetas"]) == len(original)
+        assert r["resumen"]["cantidad"].sum() == len(original)
+        carpeta = tmp_path / "dbscan/experimentos" / caso["nombre"] / "graficos"
+        for nombre in ("tamanos", "silhouette", "vecinos", "perfil_deserto"):
+            assert (carpeta / f"{nombre}.png").is_file()
+    assert (tmp_path / "dbscan/experimentos/graficos/comparacion.png").is_file()
+    for metodo in ("jerarquico", "dbscan", "k-means"):
+        assert (tmp_path / metodo / "graficos/silhouette.png").is_file()
+        assert (tmp_path / metodo / "graficos/tamanos.png").is_file()
+    assert (tmp_path / "dbscan/graficos/vecinos.png").is_file()
+    assert (tmp_path / "jerarquico/graficos/dendrograma_general.png").is_file()
+    assert not list(tmp_path.glob("*.png"))
+    resumen = tmp_path / "jerarquico/resumen_clusters.csv"
+    assert pd.read_csv(resumen)["cantidad_observaciones"].sum() == len(original)
+    assert list(tmp_path.rglob("*.csv")) == [resumen]
+    assert (tmp_path / "jerarquico/graficos/dendrograma_cluster_1.pdf").is_file()
+    assert (tmp_path / "jerarquico/graficos/silhouette_por_k.png").is_file()
+    assert not list(tmp_path.rglob("*.json"))
+
+
+def test_runs_kmeans_y_dbscan_generan_salidas_sin_jerarquico(entrada, tmp_path):
+    from src.runs import kmeans as run_kmeans
+
+    ejecucion_kmeans = run_kmeans.pruebas(entrada, tmp_path)
+    ejecucion_dbscan = run_dbscan.pruebas(entrada, tmp_path)
+
+    assert set(ejecucion_kmeans) == set(ejecucion_dbscan) == {"resultado", "casos"}
+    assert len(ejecucion_kmeans["casos"]) == 1
+    assert len(ejecucion_dbscan["casos"]) == 5
+    # La ejecución predeterminada coincide con el primer caso y reutiliza su ajuste.
+    assert ejecucion_dbscan["resultado"] is ejecucion_dbscan["casos"][0]["resultado"]
+    assert (tmp_path / "k-means/graficos/silhouette.png").is_file()
+    assert (tmp_path / "dbscan/graficos/vecinos.png").is_file()
+    assert (tmp_path / "dbscan/experimentos/graficos/comparacion.png").is_file()
+    assert not (tmp_path / "jerarquico").exists()

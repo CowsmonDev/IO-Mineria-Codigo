@@ -1,24 +1,32 @@
-"""Ejecuta las tres etapas del análisis en orden."""
+"""Entrada de consola para la comparación de agrupamientos."""
 
-import sys
+import argparse
+from pathlib import Path
 
-from src import analisis_extra, analisis_preliminar
-from src.data import manipulacion as manipulacion_datos
-
-
-def main():
-    print("\nEtapa 1/3: preparación de datos", flush=True)
-    datos = manipulacion_datos.main()
-
-    print("\nEtapa 2/3: análisis preliminar", flush=True)
-    resultados_preliminares = analisis_preliminar.main(datos)
-
-    print("\nEtapa 3/3: análisis extra", flush=True)
-    analisis_extra.main(resultados_preliminares)
-
-    print("\nLas tres etapas finalizaron correctamente.", flush=True)
-    return 0
-
+from src.runs import dbscan
+from src.runs.comparacion import FECHA_REFERENCIA, main
 
 if __name__ == "__main__":
-    sys.exit(main())
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--fecha",
+        help=f"Fecha de análisis; por defecto ANALYSIS_DATE o {FECHA_REFERENCIA}.",
+    )
+    parser.add_argument(
+        "--salida",
+        type=Path,
+        help="Carpeta raíz de resultados; contiene <método>/graficos/.",
+    )
+    parser.add_argument(
+        "--eps", type=float, default=dbscan.EPS, help="Radio DBSCAN (por defecto 1.5)."
+    )
+    parser.add_argument(
+        "--min-samples",
+        type=int,
+        default=dbscan.MIN_SAMPLES,
+        help="Mínimo de vecinos DBSCAN, incluido el propio punto (por defecto 5).",
+    )
+    args = parser.parse_args()
+    main(
+        fecha=args.fecha, salida=args.salida, eps=args.eps, min_samples=args.min_samples
+    )

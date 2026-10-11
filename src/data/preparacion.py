@@ -1,15 +1,19 @@
 """Prepara las variables y conserva la estandarización del análisis original."""
 
 import numpy as np
+import pandas as pd
+from pandera.typing import DataFrame
+
+from src.data.esquemas import (
+    EntradaClustering,
+    VariablesEstandarizadas,
+    VariablesOriginales,
+)
+from src.data.manipulacion import preparar_datos_academicos
 
 
-def preparar_variables(alumnos):
+def preparar_variables(alumnos: pd.DataFrame) -> DataFrame[VariablesOriginales]:
     """Convierte tiempos a días y selecciona las variables, sin modificar la entrada."""
-    # Preparación de variables para el análisis
-
-    # Removemos la información que no es necesario del dataframe para analizar y poner la información en el formato correcto
-    # Limpieza y selección de variables relevantes
-    # Objetivo: preparar los datos solo con las variables numéricas necesarias para hacer clustering.
     alumnos_s_avanzados = alumnos.copy()
     alumnos_s_avanzados["tiempo_desde_ingreso"] = (
         alumnos_s_avanzados["tiempo_desde_ingreso"].dt.total_seconds() / 86400
@@ -18,8 +22,6 @@ def preparar_variables(alumnos):
     alumnos_s_avanzados["dias_dsd_ultimo_final"] = (
         alumnos_s_avanzados["dias_dsd_ultimo_final"].dt.total_seconds() / 86400
     )
-
-    # Eliminamos variables que no nos interesan para el análisis
 
     alumnos_s_avanzados = alumnos_s_avanzados.drop(
         columns=[
@@ -39,11 +41,13 @@ def preparar_variables(alumnos):
         ]
     )
 
-    return alumnos_s_avanzados
+    return VariablesOriginales.validate(alumnos_s_avanzados)
 
 
-def estandarizar(alumnos_s_avanzados):
-    """Estandariza con desvío muestral y calcula las correlaciones originales.
+def estandarizar(
+    alumnos_s_avanzados: DataFrame[VariablesOriginales],
+) -> DataFrame[VariablesEstandarizadas]:
+    """Estandariza con desvío muestral, conservando las variables originales.
 
     Incluye deserto, como en la entrada original. Las etiquetas de clustering
     se agregan después de este paso.
@@ -51,8 +55,44 @@ def estandarizar(alumnos_s_avanzados):
     alumnos_s_avanzados_sc = (
         alumnos_s_avanzados - alumnos_s_avanzados.mean(axis=0)
     ) / alumnos_s_avanzados.std(axis=0, ddof=1)
-    matriz_cor = alumnos_s_avanzados_sc.corr()  # noqa: F841 — conserva el cálculo exploratorio
-    matriz_cor_comparacion = alumnos_s_avanzados.corr()  # noqa: F841 — conserva el cálculo exploratorio
     alumnos_s_avanzados_sc.index = np.arange(1, len(alumnos_s_avanzados_sc) + 1)
 
     return alumnos_s_avanzados_sc
+
+
+def preparar_entrada(*, fecha_analisis=None) -> EntradaClustering:
+    """Carga los datos y prepara identidad, originales y matriz sin etiquetas."""
+    datos = preparar_datos_academicos(fecha_analisis=fecha_analisis)
+    alumnos = datos["alumnos_s_avanzados"]
+    originales = preparar_variables(alumnos).reset_index(drop=True)
+    entrada: EntradaClustering = {
+        "originales": originales,
+        "matriz": estandarizar(originales),
+        "ids_alumnos": alumnos["id_alumno"].to_numpy(copy=True),
+        "fecha_analisis": datos["fecha_analisis"],
+    }
+    validar_entrada(entrada)
+    return entrada
+
+
+def validar_entrada(entrada: EntradaClustering) -> None:
+    """Rechaza contaminación por etiquetas, identidades inválidas y desalineación."""
+    originales, matriz = entrada["originales"], entrada["matriz"]
+    ids = np.asarray(entrada["ids_alumnos"])
+    if any(str(col).startswith("cluster") for col in matriz.columns):
+        raise ValueError("Las etiquetas de clustering no pueden integrar la entrada.")
+    if list(originales.columns) != list(matriz.columns):
+        raise ValueError("Las variables originales y estandarizadas no coinciden.")
+    if len(originales) != len(matriz) or len(ids) != len(matriz):
+        raise ValueError("Las tablas y los identificadores deben tener igual longitud.")
+    if pd.isna(ids).any() or pd.Series(ids).duplicated().any():
+        raise ValueError("Cada fila debe tener un id_alumno único y no nulo.")
+    VariablesOriginales.validate(originales)
+    VariablesEstandarizadas.validate(matriz)
+    if not np.isfinite(matriz.to_numpy(dtype=float)).all():
+        raise ValueError("La entrada contiene valores faltantes o no finitos.")
+    esperada = (originales - originales.mean()) / originales.std(ddof=1)
+    if not np.allclose(matriz.to_numpy(), esperada.to_numpy(), rtol=1e-10, atol=1e-10):
+        raise ValueError(
+            "La entrada no conserva el orden y la estandarización original."
+        )

@@ -1,129 +1,143 @@
-# Objetivos y alcance del final de Investigación Operativa
+# Comparación de agrupamientos de estudiantes
 
-## Comparación de técnicas de clustering aplicadas a la segmentación de estudiantes
+Trabajo final de Investigación Operativa — Facultad de Ciencias Exactas, UNICEN.
 
-**Facultad de Ciencias Exactas UNICEN | Proyecto IO Minería | Septiembre de 2026**
+El proyecto estudia **cómo cambia la agrupación de los mismos estudiantes al aplicar K-Means y DBSCAN sobre los mismos atributos utilizados por el clustering jerárquico del estudio de Clementi y Salias**. Se compararán la cantidad de grupos, sus integrantes y sus características académicas para interpretar qué perfiles se conservan, se dividen, se fusionan o quedan como ruido.
 
-Este documento establece el propósito, el alcance inicial y el criterio metodológico del trabajo final. El estudio evaluará cómo cambia la segmentación de estudiantes cuando el problema abordado por Clementi y Salias mediante clustering jerárquico se analiza con una técnica alternativa. La comparación conservará la intención y las condiciones centrales del análisis original, y su extensión definitiva se resolverá a partir de la complejidad y de los resultados obtenidos.
+Cada método recibe la misma matriz estandarizada y produce su propia asignación de alumnos. K-Means y DBSCAN se ejecutan directamente sobre los atributos; no reciben los grupos jerárquicos como entrada. La segmentación jerárquica sirve como referencia de comparación, sin tratarla como una clasificación verdadera.
 
-## Entorno de desarrollo Python
+La propuesta retoma la línea de trabajos futuros del informe dedicada a contrastar los perfiles mediante otros algoritmos de clustering. En esta etapa se usan los datos académicos existentes; el enriquecimiento socioeconómico y la predicción supervisada son otras líneas de continuidad.
 
-El proyecto utiliza Python 3.11 y [uv](https://docs.astral.sh/uv/) para gestionar el entorno virtual y las dependencias. Para crear o sincronizar el entorno local:
+## Estado actual
 
-```powershell
-uv sync
-```
+Los tres métodos están implementados y generan resúmenes y gráficos individuales. Para la fecha de análisis `2026-10-01`, la entrada contiene 2.587 alumnos y diez atributos:
 
-Los comandos del proyecto se ejecutan dentro del entorno administrado por uv, sin necesidad de activarlo manualmente. Por ejemplo:
+| Método | Configuración actual | Grupos | Ruido | Silhouette |
+|---|---|---:|---:|---:|
+| Jerárquico | Euclídea, Ward, corte h=35 | 7 | 0 | 0,295444 |
+| K-Means | k=7, 25 inicializaciones, semilla 123 | 7 | 0 | 0,365474 |
+| DBSCAN | eps=1,5; min_samples=5 | 1 | 194 (7,5 %) | No calculable: un grupo sin ruido |
 
-```powershell
-uv run python --version
-uv run pytest
-```
+Los siete grupos de K-Means son una decisión de la configuración actual. Sus integrantes pueden diferir de los del jerárquico. En DBSCAN, la cantidad de grupos surge de la densidad; no se exige que sean siete.
 
-Para trabajar con PyCharm, se debe abrir este directorio como proyecto y seleccionar como intérprete el ejecutable `.venv\Scripts\python.exe`. Las dependencias de ejecución y desarrollo están declaradas en `pyproject.toml`. El directorio `.venv` es local y descartable; no debe incorporarse al control de versiones.
+La migración jerárquica R–Python está verificada: con los mismos CSV y la misma fecha, ambas implementaciones seleccionan los mismos alumnos y atributos y producen el mismo agrupamiento y Silhouette dentro de la precisión numérica. Se comprobó en cinco fechas; ver [verificación R–Python](docs/resultados/verificacion-fechas-r-python.md).
 
-## Análisis en scripts Python
+El requisito del proyecto es esa equivalencia entre implementaciones. Reproducir las cifras, figuras o fecha exacta del PDF no es un requisito ni una tarea pendiente. La entrada de trabajo conserva la fecha `2026-10-01`. Se realizaron exploraciones locales de DBSCAN; la comparación completa de perfiles entre los tres métodos sigue pendiente. La [búsqueda de siete grupos con poco ruido](docs/resultados/concordancia-dbscan.md) obtuvo esa cantidad, pero mantuvo una gran concentración y poca concordancia con el jerárquico. No se seleccionó una nueva configuración predeterminada.
 
-Para ejecutar las tres etapas en secuencia desde la raíz del proyecto:
+## Ejecución
+
+Se utiliza Python 3.11 y uv. Los datos deben estar disponibles localmente en `data/`:
+
+- `001_alumnos.csv`
+- `002_regularidades.csv`
+- `003_historia_academica.csv`
+- `000_materias_planes.csv`
 
 ```bash
+uv sync
 uv run python main.py
 ```
 
-El punto de entrada `main.py` importa las tres etapas y las ejecuta en el mismo proceso, en orden. Cada etapa devuelve un diccionario con los datos que necesita la siguiente. Si una falla, la ejecución se detiene. El progreso y las carpetas de salida se informan en la consola.
-
-También se pueden ejecutar los módulos desde la raíz del proyecto:
+La fecha predeterminada es `2026-10-01`, usada para la ejecución reproducible actual. `--fecha` tiene prioridad sobre `ANALYSIS_DATE` y permite cambiarla:
 
 ```bash
-uv run python -m src.data.manipulacion
-uv run python -m src.analisis_preliminar
-uv run python -m src.analisis_extra
+uv run python main.py --fecha 2026-10-01
 ```
 
-Al ejecutar el análisis preliminar por separado, este importa y ejecuta primero la preparación de datos. Al ejecutar el análisis extra, se ejecutan antes ambas etapas anteriores. Para correr todo una sola vez, usar `main.py`.
+Cambiar la fecha puede cambiar los indicadores y las asignaciones. El indicador de actividad llamado «último año» sigue referido a 2023, conforme al procesamiento heredado; no se desplaza con `--fecha`.
 
-El código se organiza así:
+DBSCAN recibe parámetros explícitos. Por ejemplo, para explorar otra configuración y conservar sus salidas:
+
+```bash
+uv run python main.py --eps 0.8 --min-samples 10 --salida output/dbscan/experimentos/dbscan_0_8_10
+```
+
+Este comando ejecuta los tres métodos y los cinco casos fijos de DBSCAN, y guarda sus resultados en la raíz indicada. `--eps` y `--min-samples` modifican la ejecución individual de DBSCAN; los casos fijos conservan sus parámetros. Los valores del ejemplo son exploratorios, no una configuración final seleccionada. `min_samples` incluye al propio alumno.
+
+## Entrada y resultado
+
+`main.py` procesa los argumentos de consola y llama a `src/runs/comparacion.py`, que solicita `preparar_entrada(fecha_analisis=fecha)` y delega en las funciones `pruebas` de cada run. Esa función carga los datos mediante `manipulacion.preparar_datos_academicos`, conserva los identificadores y prepara los valores originales y la matriz estandarizada con desvío muestral (`ddof=1`). Pandera valida las columnas, su orden, tipos y ausencia de nulos; también se verifica la alineación de los alumnos.
+
+Las diez variables y su significado se describen en [el informe](docs/referencias/informe.md#3-entrada-común). Los identificadores y etiquetas de clusters quedan fuera de la matriz. Se conserva `deserto` como atributo, siguiendo el código original; sus porcentajes por grupo son descriptivos y no validan una predicción de abandono.
+
+Cada algoritmo devuelve:
+
+- Una etiqueta por alumno; DBSCAN utiliza `-1` para ruido.
+- Una tabla de cantidades y medias en unidades originales por grupo.
+- Silhouette individual y promedio cuando se puede calcular.
+- Información propia del método: árbol jerárquico, centros e inercia de K-Means, o ruido y distancias de vecinos de DBSCAN.
+
+Las etiquetas numéricas son independientes: el grupo 1 de un método no necesariamente corresponde al grupo 1 de otro. Los resultados quedan en memoria al llamar a `main()` desde Python; los parámetros, resúmenes y Silhouette se muestran en consola. Además de `entrada` y `resultados`, el retorno contiene `pruebas_dbscan`: una lista de casos con `nombre`, `descripcion` y `resultado`. Cada resultado conserva la estructura que devuelve `dbscan.analizar`.
+
+## Salidas en disco
 
 ```text
-main.py
-src/
-├── data/
-│   ├── manipulacion.py       # CSV, filtros de población e indicadores
-│   └── preparacion.py        # Variables en unidades originales y estandarización
-├── clustering/
-│   └── jerarquico.py         # Ward, dendrogramas, resumen y Silhouette
-├── lasso.py                  # Regresión logística y coeficientes originales
-├── analisis_preliminar.py    # Coordinación y gráficos descriptivos
-└── analisis_extra.py         # Hopkins, K-Means, DBSCAN, PAM y Random Forest
+output/
+├── jerarquico/
+│   ├── resumen_clusters.csv
+│   └── graficos/              # PNG y PDF de dendrogramas internos y zooms
+├── k-means/
+│   └── graficos/              # PNG
+└── dbscan/
+    ├── graficos/              # PNG, incluido vecinos.png
+    └── experimentos/          # Cinco casos fijos de main y pruebas locales
+        ├── <caso>/graficos/    # Figuras individuales de DBSCAN
+        └── graficos/          # Comparación de grupos, ruido y concentración
 ```
 
-La carpeta `data/` de la raíz conserva los CSV de entrada; `src/data/` contiene el código que los prepara. `analisis_preliminar.main()` coordina la preparación de variables, LASSO y el jerárquico, y devuelve el mismo diccionario que consume el análisis extra. La preparación mantiene las variables originales, incluida `deserto`, y estandariza con desvío muestral (`ddof=1`) antes de agregar las etiquetas de grupos. LASSO utiliza la tabla en unidades originales y sus coeficientes no seleccionan ni ponderan las variables del clustering.
+Se generan tamaños, Silhouette, boxplots de finales aprobados y promocionadas y proporción de deserción. Si Silhouette no está disponible, su figura explica el motivo.
 
-Importar los módulos no inicia el análisis: las etapas se ejecutan al llamar a `main()`. Los datos se pasan en memoria; no se guardan ni se cargan archivos intermedios. Esta reorganización conserva los parámetros, cálculos y salidas existentes; el análisis extra permanece sin cambios.
+El jerárquico también genera el dendrograma general, Silhouette para k=2 a 15, dendrogramas internos con cuatro subgrupos y zooms de los primeros 50 casos para grupos de al menos 500 alumnos. Los zooms son dendrogramas recalculados sobre esos casos; no representan necesariamente todo el grupo. Se agregan gráficos de deserción individual y avance frente a promocionadas. La curva de Silhouette no modifica el corte h=35.
 
-Para reproducir una ejecución con una fecha de análisis fija, se puede definir `ANALYSIS_DATE`. Si no se define, la preparación usa el día de ejecución:
+Actualmente se guarda un CSV para el jerárquico y gráficos por método. La ejecución recalcula cinco casos fijos de DBSCAN sobre la misma entrada y muestra una tabla de grupos, ruido, concentración y Silhouette. Genera gráficos individuales por caso y una figura conjunta en `output/dbscan/experimentos/graficos/comparacion.png`. No realiza una búsqueda de parámetros ni selecciona automáticamente un ganador. Las exploraciones históricas y el diagnóstico sin `deserto` no se ejecutan desde `main`. `data/` y `output/` están excluidos de Git.
+
+## Organización y verificación
+
+```text
+main.py                         # Entrada de consola; delega en src.runs.comparacion
+src/
+├── runs/
+│   ├── comparacion.py          # Prepara la entrada común y coordina los runs
+│   ├── dbscan.py               # Ejecución individual, cinco casos fijos y salidas
+│   ├── jerarquico.py           # Referencia Ward, gráficos y resumen CSV
+│   ├── kmeans.py               # Configuración actual k=7 y gráficos
+│   ├── lasso.py                # Ejecución independiente de LASSO
+│   └── visualizacion/
+│       ├── visualizacion.py    # Arma los conjuntos de salida por ejecución
+│       ├── guardado.py         # Exporta figuras a PNG/PDF y las cierra
+│       ├── esquemas.py         # Contratos de resultados y casos (TypedDict)
+│       ├── barras.py           # Barras y comparaciones en paneles
+│       ├── silhouette.py       # Silhouette por grupo
+│       ├── perfiles.py         # Boxplots por variable y grupo
+│       ├── lineas.py           # Curvas y referencias horizontales
+│       ├── dendrogramas.py     # Árbol general, internos y zooms
+│       └── dispersion.py       # Diagnósticos de deserción
+├── data/
+│   ├── manipulacion.py         # CSV, filtros e indicadores académicos
+│   ├── esquemas.py             # Columnas y tipos de los DataFrames (Pandera)
+│   └── preparacion.py          # Carga, identidad y estandarización
+└── methods/
+    ├── jerarquico.py           # Árbol Ward y corte h=35
+    ├── kmeans.py               # Agrupamiento alrededor de centros
+    ├── dbscan.py               # Agrupamiento por densidad y ruido
+    └── lasso.py                # Regresión logística LASSO
+```
 
 ```bash
-ANALYSIS_DATE=2026-10-01 uv run python main.py
+uv run pytest -q
+uv run ruff check main.py src tests
 ```
 
-Los gráficos se exportan como PNG en `output/graficos/02_analisis_preliminar/` y `output/graficos/03_analisis_extra/`. El análisis preliminar genera 16 PNG con los datos actuales: siete gráficos generales, siete dendrogramas individuales y dos zooms. Los dendrogramas conservan además sus PDF en `output/dendrogramas/`. Los scripts generan los archivos sin abrir ventanas y al finalizar muestran en la consola las rutas completas de las carpetas donde se guardaron.
+Los módulos de `src/methods/` implementan K-Means, DBSCAN, el jerárquico y LASSO. Los métodos de agrupamiento devuelven sus resultados en memoria; LASSO devuelve el modelo y sus coeficientes. Las ejecuciones y experimentos se ubican en `src/runs/`; por ejemplo, `CONFIGURACIONES_PRUEBAS` y `pruebas` de DBSCAN están en `src/runs/dbscan.py`. Los runs de clustering exponen `pruebas(entrada, directorio)`, llaman al método y generan sus gráficos mediante `src.runs.visualizacion.visualizacion.generar_graficos_metodos`. Devuelven `resultado` (la ejecución principal) y `casos` (nombre, descripción y resultado por configuración). DBSCAN también genera la comparación de sus cinco casos; el jerárquico exporta su resumen CSV. `comparacion.py` reúne las salidas y no llama directamente a métodos ni a visualización. Se conserva `from main import main` para ejecutar la comparación desde Python.
 
-El análisis extra conserva su implementación actual y las diferencias conocidas respecto de R. Silhouette de DBSCAN se omite si, al excluir el ruido, no hay entre dos y `n - 1` grupos; el script informa el motivo y continúa hasta Random Forest.
+LASSO toma los valores originales de la misma preparación y puede ejecutarse por separado:
 
-Los archivos de `output/` contienen datos estudiantiles y están excluidos de Git. Los scripts de `src/` son la fuente activa del análisis en Python. Las copias completas de los notebooks anteriores se conservan en `Legacy/migracion_inicial/`, con sus comentarios y salidas, para mantener la historia de la migración.
+```bash
+ANALYSIS_DATE=2026-10-01 uv run --group antecedentes python -m src.runs.lasso
+```
 
-## Antecedentes y origen
+Sus coeficientes no seleccionan ni ponderan las variables del clustering. Los scripts R y notebooks de la migración se conservan en `Legacy/`.
 
-El informe de Clementi y Salias estudió la deserción en Ingeniería de Sistemas de la Facultad de Ciencias Exactas de la UNICEN a partir de datos académicos del sistema SIU Guaraní. Para segmentar trayectorias estudiantiles aplicó clustering jerárquico aglomerativo con distancia euclídea y enlace `ward.D2`. El número de grupos se definió mediante el índice Silhouette y el análisis resultante tomó siete clústeres como base para caracterizar perfiles de estudiantes.
+La [guía de documentación](docs/README.md) reúne el alcance, el borrador de informe, las ejecuciones registradas, el flujo por archivos y los PDF de referencia.
 
-En la sección de trabajos futuros, ese informe propuso aplicar K-Means y DBSCAN para contrastar la estabilidad de los perfiles. Posteriormente, un revisor del artículo derivado del trabajo solicitó una comparación empírica con esos algoritmos y una discusión de las diferencias de segmentación. En la reunión del 17 de septiembre de 2026, el profesor Gustavo Illescas indicó que esa observación constituye el punto de partida del final.
-
-## Objetivo general
-
-Comparar empíricamente la segmentación obtenida mediante clustering jerárquico con la producida por una o más técnicas alternativas, inicialmente K-Means y/o DBSCAN, para determinar en qué medida se conservan o cambian los perfiles estudiantiles vinculados con la deserción.
-
-## Objetivos específicos
-
-1. Establecer como referencia la configuración, las variables y los perfiles obtenidos mediante clustering jerárquico en el trabajo de Clementi y Salias.
-2. Implementar inicialmente una técnica alternativa de agrupamiento y documentar las decisiones de preparación de datos y parametrización que requiera.
-3. Evaluar cada segmentación con criterios comparables de cohesión, separación, tamaño de los grupos, estabilidad e interpretabilidad de los perfiles.
-4. Identificar similitudes y diferencias en la asignación de estudiantes y en las características académicas que describen a cada grupo.
-5. Determinar, a partir de la primera comparación, si corresponde incorporar un segundo algoritmo o acotar el estudio a un análisis introductorio técnicamente justificado.
-
-## Alcance inicial
-
-La primera etapa comprenderá la reproducción o verificación del resultado de referencia y la aplicación de un algoritmo alternativo sobre el mismo problema de segmentación. K-Means es una opción natural para una comparación basada en particiones; DBSCAN permite explorar agrupamientos por densidad e identificar ruido. La selección inicial entre ambas técnicas deberá considerar las características del conjunto de datos y la posibilidad de establecer una comparación metodológicamente válida.
-
-No se plantea como objetivo inicial rehacer todo el estudio previo, incorporar nuevas fuentes de datos, desarrollar un modelo predictivo supervisado ni revisar de manera general las conclusiones causales del informe. Esas líneas podrán considerarse únicamente si los resultados muestran que son necesarias para interpretar la comparación.
-
-## Metodología comparativa esperada
-
-La comparación debe mantener constantes los elementos que definen el problema y explicitar cualquier cambio exigido por el algoritmo alternativo. Los grupos no se compararán solo por su numeración, sino por su composición y por los perfiles académicos que representan.
-
-| Elemento | Criterio de comparación |
-|---|---|
-| **Población y datos** | Usar el mismo universo de estudiantes y los mismos criterios de inclusión del análisis de referencia. |
-| **Variables** | Conservar las variables académicas y el tratamiento previo. Justificar normalización, selección o transformación adicional. |
-| **Método de referencia** | Clustering jerárquico aglomerativo con distancia euclídea, enlace `ward.D2` y siete grupos seleccionados mediante Silhouette. |
-| **Método alternativo** | Aplicar K-Means o DBSCAN. Documentar la elección de `k` o de los parámetros de densidad y el tratamiento de observaciones consideradas ruido. |
-| **Evaluación** | Comparar validez interna, tamaños de grupos, estabilidad, correspondencia de asignaciones e interpretabilidad de los perfiles. |
-| **Interpretación** | Describir qué perfiles se mantienen, cuáles se dividen o se fusionan y qué estudiantes cambian de agrupamiento. |
-
-## Criterio de continuidad
-
-El análisis conservará el mismo hilo del trabajo original. Esto implica estudiar la segmentación de los estudiantes con la misma intención descriptiva y diagnóstica, sobre variables equivalentes y con criterios de interpretación compatibles. El foco estará en el efecto del cambio de técnica sobre los agrupamientos. Las diferencias respecto de las conclusiones previas se registrarán cuando surjan de la comparación, pero no serán el punto de partida del estudio.
-
-## Ajuste del alcance final
-
-El alcance definitivo se decidirá después de obtener los primeros resultados. Si una sola técnica alternativa produce una comparación suficientemente compleja, el trabajo podrá concentrarse en ella. Si el análisis resulta breve o poco informativo, se incorporará una segunda técnica. Si la implementación o la interpretación exceden el tiempo disponible, se delimitará un estudio introductorio que documente con claridad sus decisiones y limitaciones. Los ajustes se acordarán con el profesor a partir de resultados intermedios.
-
-## Resultado esperado
-
-El producto final deberá presentar una comparación reproducible de las técnicas, acompañada por métricas, tablas o gráficos que permitan evaluar la calidad de los agrupamientos y por una interpretación de los perfiles obtenidos. La conclusión deberá indicar qué aspectos de la segmentación original se mantienen, cuáles cambian y qué limitaciones condicionan la comparación.
-
-## Fuentes de referencia
-
-- Clementi, G. y Salias, L. G. *Minería de datos y técnicas de clustering para predecir deserción universitaria*. Informe de Trabajo Final de Investigación Operativa, UNICEN, 2025. En particular, secciones 3.2 y 5.
-- Reunión con el profesor Gustavo Illescas del 17 de septiembre de 2026. Transcripción utilizada para precisar el origen, el foco comparativo y el criterio de ajuste del alcance.
+La visualización tiene tres responsabilidades separadas dentro de `src/runs/visualizacion/`: los módulos por tipo de gráfico devuelven figuras sin escribir archivos; `guardado.guardar_figura` recibe una figura, una ruta base y los formatos, y la cierra después de exportarla; `visualizacion.py` selecciona los gráficos, títulos y carpetas de cada ejecución. `generar_graficos_ejecucion` arma las salidas comunes de una configuración, `generar_diagnosticos_jerarquicos` agrega sus diagnósticos y `generar_graficos_experimentos_dbscan` agrega la comparación entre casos. Para usar una figura por separado, se llama a su función `graficar_*` y luego se guarda con `guardar_figura` o se cierra explícitamente.
