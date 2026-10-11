@@ -11,20 +11,12 @@ El output principal es la asignación de cada alumno a un grupo. A partir de ell
 | [Criterios del trabajo](criterios-del-trabajo.md) | Objetivo, alcance, comparación prevista y equivalencia R–Python aceptada. |
 | [Informe](referencias/informe.md) | Borrador académico con entrada, métodos, resultados actuales y preguntas que debe responder la comparación. |
 | [Flujo por archivos](flujos/flujo-archivos.md) | Recorrido de los datos y salidas realmente implementadas. |
-| [Resultados K-Means](resultados/resultados-kmeans.md) | Ejecución principal y registro histórico de la primera comparación y sus repeticiones. |
-| [Resultados DBSCAN](resultados/resultados-dbscan.md) | Configuración inicial, resultado observado y criterios para su exploración posterior. |
+| [Informe final de DBSCAN](resultados/experiencia-dbscan.pdf) | Documento principal: cinco casos, interpretación y decisión de no adoptarlo como segmentación seleccionada. |
+| [Fuente editable del informe](resultados/experiencia-dbscan.docx) | Versión Word para actualizar el documento principal. |
+| [Anexo técnico de DBSCAN](resultados/anexo-tecnico-dbscan.md) | Protocolos, tablas de exploración, concordancia, sensibilidad, diagnóstico sin `deserto` y casos del código actual. |
+| [Verificación R–Python](resultados/verificacion-fechas-r-python.md) | Validación cerrada de alumnos, atributos y agrupamientos en cinco fechas. |
 
-- [Verificación de fechas R–Python](resultados/verificacion-fechas-r-python.md): validación cerrada de alumnos, atributos y agrupamientos en cinco fechas.
-
-- [Exploración de DBSCAN](resultados/exploracion-dbscan.md): dieciséis configuraciones, cobertura, perfiles y sensibilidad local.
-
-- [Ampliación de DBSCAN y nube de puntos](resultados/ampliacion-dbscan.md): más grupos, sensibilidad a parámetros y orden, y proyección 2D con PCA.
-
-- [Siete grupos y concordancia de DBSCAN](resultados/concordancia-dbscan.md): búsqueda acotada, ruido, correspondencia con el jerárquico y sensibilidad.
-
-## Diagnósticos auxiliares
-
-- [Retirada de `deserto`](resultados/diagnostico-sin-deserto.md): prueba aparte, excluida de la comparación principal; los diez atributos originales se conservan.
+La evaluación de DBSCAN está cerrada bajo el protocolo estudiado. El informe final es la referencia para sus conclusiones; el anexo conserva la evidencia detallada. Las búsquedas históricas no se ejecutan desde `main.py`. El antecedente de K-Means se conserva dentro del [borrador general](referencias/informe.md#anexo-histórico-de-k-means).
 
 ## Referencias originales
 

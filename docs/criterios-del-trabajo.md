@@ -64,7 +64,7 @@ LASSO se conserva como antecedente independiente. En el código original, sus co
 
 ## Estado y próximos análisis
 
-Los tres métodos, sus resúmenes y gráficos individuales están implementados. Se realizaron exploraciones locales de DBSCAN, incluida una [búsqueda de siete grupos con poco ruido y concordancia con el jerárquico](resultados/concordancia-dbscan.md). Se registraron tablas cruzadas y sensibilidad de los candidatos; no se eligió una nueva configuración final. Las repeticiones históricas de K-Means se conservan como antecedentes, sin ejecutarse automáticamente.
+Los tres métodos, sus resúmenes y gráficos individuales están implementados. Se realizaron exploraciones locales de DBSCAN, incluida una [búsqueda de siete grupos con poco ruido y concordancia con el jerárquico](resultados/anexo-tecnico-dbscan.md#grilla-de-470-configuraciones-y-concordancia). Se registraron tablas cruzadas y sensibilidad de los candidatos; el [informe final](resultados/experiencia-dbscan.pdf) cierra la evaluación sin adoptar DBSCAN como segmentación seleccionada. Las repeticiones históricas de K-Means se conservan en el [anexo del borrador general](referencias/informe.md#anexo-histórico-de-k-means), sin ejecutarse automáticamente.
 
 La validación de la migración está cerrada y no bloquea el objetivo del proyecto. La comparación completa de perfiles entre los tres métodos sigue pendiente. Los experimentos de DBSCAN son análisis locales y no se ejecutan automáticamente desde `main.py`.
 
