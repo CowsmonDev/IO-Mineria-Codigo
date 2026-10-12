@@ -1,1 +1,1 @@
-"""Etapas del análisis de trayectorias estudiantiles."""
+"""Student trajectory analysis pipeline."""

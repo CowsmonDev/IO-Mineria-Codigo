@@ -248,11 +248,11 @@ La retirada de una variable sí puede modificar la estructura y las asignaciones
 
 ## Implementación y casos fijos actuales
 
-`src.runs.dbscan.pruebas(entrada, directorio)` llama a `methods.dbscan.analizar` para la configuración individual y los cinco casos predeterminados. Genera los gráficos y muestra los perfiles y la tabla conjunta en consola. Devuelve `resultado` (la ejecución individual) y `casos` (una lista con `nombre`, `descripcion` y `resultado`). Si la configuración individual coincide con un caso fijo, reutiliza su resultado. `comparacion.main` delega en este run y conserva la lista de casos en `pruebas_dbscan`.
+`src.runs.dbscan.run_cases(entry, directory)` llama a `methods.dbscan.analyze` para la configuración individual y los cinco casos predeterminados. Genera los gráficos y muestra los perfiles y la tabla conjunta en consola. Devuelve `result` (la ejecución individual) y `cases` (una lista con `name`, `description` y `result`). Si la configuración individual coincide con un caso fijo, reutiliza su resultado. `comparison.main` delega en este run y conserva la lista de casos en `dbscan_cases`.
 
 | Caso | eps / min_samples | Propósito | Resultado en 2026-10-01 |
 |---|---|---|---|
-| `referencia` | 1,5 / 5 | Configuración del R original | Un grupo; 7,50 % de ruido |
+| `reference` | 1,5 / 5 | Configuración del R original | Un grupo; 7,50 % de ruido |
 | `siete_poco_ruido` | 1,175 / 4 | Mostrar concentración pese a siete grupos y poco ruido | Siete grupos; 9,43 % de ruido; mayor 94,54 % de agrupados |
 | `siete_mas_ruido` | 0,5 / 10 | Mostrar el costo de reducir esa concentración | Siete grupos; 28,95 % de ruido; mayor 81,50 % |
 | `catorce_grupos` | 0,5 / 6 | Mostrar más grupos con concentración persistente | Catorce grupos; 24,43 % de ruido; mayor 77,29 % |
@@ -264,7 +264,7 @@ Cada caso genera los gráficos habituales en `output/dbscan/experimentos/<caso>/
 
 ## Antecedente de la configuración inicial
 
-`Legacy/scripts/script_extra.R` ya ejecutaba DBSCAN sobre `alumnos_s_avanzados_sc`, con `eps=1.5` y `minPts=5` (líneas 27 y 55), y excluía ruido antes de calcular Silhouette. Es una configuración fija, no una exploración de parámetros. No hay resultados de esa ejecución R guardados junto al script que permitan establecer qué partición obtuvieron sus autores. El comentario sobre valores faltantes antes de K-Means no demuestra que el script nunca se haya ejecutado.
+`Legacy/scripts/script_extra.R` ya ejecutaba DBSCAN sobre `standardized_students`, con `eps=1.5` y `minPts=5` (líneas 27 y 55), y excluía ruido antes de calcular Silhouette. Es una configuración fija, no una exploración de parámetros. No hay resultados de esa ejecución R guardados junto al script que permitan establecer qué partición obtuvieron sus autores. El comentario sobre valores faltantes antes de K-Means no demuestra que el script nunca se haya ejecutado.
 
 El notebook `Legacy/migracion_inicial/03_analisis_extra.ipynb` sí conserva salidas de una ejecución de la migración a Python: DBSCAN produjo un grupo con 2.393 observaciones sin ruido y Silhouette no disponible. Ese registro es evidencia de la migración, no una salida histórica de R.
 
@@ -276,7 +276,7 @@ Los parámetros predeterminados `eps=1.5` y `min_samples=5` se conservan como re
 
 ## Reproducción y respaldo local
 
-Los casos fijos se ejecutan desde la raíz con `uv run python main.py --fecha 2026-10-01`. Los parámetros `--eps` y `--min-samples` cambian la ejecución individual, sin alterar los cinco casos. La ejecución imprime resúmenes y guarda gráficos; no exporta las tablas completas de las búsquedas históricas.
+Los casos fijos se ejecutan desde la raíz con `uv run python main.py --date 2026-10-01`. Los parámetros `--eps` y `--min-samples` cambian la ejecución individual, sin alterar los cinco casos. La ejecución imprime resúmenes y guarda gráficos; no exporta las tablas completas de las búsquedas históricas.
 
 Los registros originales sitúan scripts, versiones, huellas, asignaciones, perfiles y tablas de sensibilidad en estas carpetas locales:
 

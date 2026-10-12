@@ -1,29 +1,30 @@
-# Documentación del proyecto
+# Project documentation
 
-Pregunta central: **¿cómo cambia el agrupamiento de los mismos estudiantes al aplicar K-Means y DBSCAN sobre la misma entrada académica usada por el jerárquico?**
+Main question: **how does grouping the same students change when K-Means and DBSCAN use the same academic input as the hierarchical reference?**
 
-El output principal es la asignación de cada alumno a un grupo. A partir de ella cambian los tamaños, las características académicas y la separación de los grupos. DBSCAN puede dejar alumnos como ruido. La interpretación busca relacionar esos cambios con los perfiles descritos por el estudio previo.
+The primary output is each student's group assignment. Sizes, academic profiles and separation follow from those assignments. DBSCAN may classify students as noise. Interpretation relates preserved, split and merged groups to profiles described in the original study.
 
-## Guía de lectura
+## Reading guide
 
-| Documento | Propósito |
+| Document | Purpose |
 |---|---|
-| [Criterios del trabajo](criterios-del-trabajo.md) | Objetivo, alcance, comparación prevista y equivalencia R–Python aceptada. |
-| [Informe](referencias/informe.md) | Borrador académico con entrada, métodos, resultados actuales y preguntas que debe responder la comparación. |
-| [Flujo por archivos](flujos/flujo-archivos.md) | Recorrido de los datos y salidas realmente implementadas. |
-| [Informe final de DBSCAN](resultados/experiencia-dbscan.pdf) | Documento principal: cinco casos, interpretación y decisión de no adoptarlo como segmentación seleccionada. |
-| [Fuente editable del informe](resultados/experiencia-dbscan.docx) | Versión Word para actualizar el documento principal. |
-| [Anexo técnico de DBSCAN](resultados/anexo-tecnico-dbscan.md) | Protocolos, tablas de exploración, concordancia, sensibilidad, diagnóstico sin `deserto` y casos del código actual. |
-| [Verificación R–Python](resultados/verificacion-fechas-r-python.md) | Validación cerrada de alumnos, atributos y agrupamientos en cinco fechas. |
+| [Study criteria](criterios-del-trabajo.md) | Goals, scope, comparison criteria and accepted R-to-Python equivalence. |
+| [Report draft](referencias/informe.md) | Academic background, input, methods and comparison questions. |
+| [File-level flow](flujos/flujo-archivos.md) | Current preparation, method runs and output responsibilities. |
+| [Final DBSCAN report](resultados/experiencia-dbscan.pdf) | Five cases, interpretation and decision not to adopt DBSCAN as the selected segmentation. |
+| [Editable report source](resultados/experiencia-dbscan.docx) | Word version of the main DBSCAN document. |
+| [DBSCAN technical annex](resultados/anexo-tecnico-dbscan.md) | Protocols, experiments, concordance, sensitivity and historical diagnostics. |
+| [K-Means experiment record](resultados/experiencia-kmeans.md) | Original features, initialization sensitivity, fragmentation and profiles. |
+| [R-to-Python verification](resultados/verificacion-fechas-r-python.md) | Completed validation of students, features and clustering on five dates. |
 
-La evaluación de DBSCAN está cerrada bajo el protocolo estudiado. El informe final es la referencia para sus conclusiones; el anexo conserva la evidencia detallada. Las búsquedas históricas no se ejecutan desde `main.py`. El antecedente de K-Means se conserva dentro del [borrador general](referencias/informe.md#anexo-histórico-de-k-means).
+DBSCAN evaluation is complete for the studied protocol. Its final report is the conclusion reference, while the annex retains supporting evidence. Historical searches are not part of `main.py`. K-Means exploration runs separately with `python -m src.runs.kmeans_experiments`; the linked record explains its results. The [historical K-Means annex](referencias/informe.md#anexo-histórico-de-k-means) remains in the report draft.
 
-## Referencias originales
+## Original references
 
-- [Informe de Clementi y Salias](referencias/IO-Mineria-Informe-Clementi-Salias.pdf): sección 4.3, perfiles de clusters; sección 5, conclusiones y trabajos futuros.
-- [Artículo en inglés](<referencias/Analyzing students dropout using penalized logistic regression and hierarchical clustering a case study in systems engineering.docx.pdf>): sección 4.4, perfiles; sección 5, líneas de continuidad.
-- [Scripts R](../Legacy/scripts): implementación del procesamiento, LASSO y clustering original.
+- [Clementi and Salias report](referencias/IO-Mineria-Informe-Clementi-Salias.pdf): section 4.3, cluster profiles; section 5, conclusions and future work.
+- [English article](<referencias/Analyzing students dropout using penalized logistic regression and hierarchical clustering a case study in systems engineering.docx.pdf>): section 4.4, profiles; section 5, future work.
+- [R scripts](../Legacy/scripts): original preparation, LASSO and clustering.
 
-Los PDF se conservan como fuentes. La documentación distingue lo publicado, lo obtenido con el código actual y los análisis pendientes. La fecha de trabajo es `2026-10-01`. El requisito de equivalencia R–Python está verificado; reproducir la fecha o las cifras publicadas queda fuera de alcance.
+Original documents and historical academic records retain their original language. The working analysis date is `2026-10-01`. R-to-Python equivalence is verified; reconstructing the publication date and figures is outside the project scope.
 
-Para instalar y ejecutar el proyecto, consultar el [README principal](../README.md).
+The current code, CLI and generated paths use English. The original source data and report CSV columns retain their names. The [main README](../README.md) documents current installation, commands and Python interfaces. Historical output directories remain available with their original names.

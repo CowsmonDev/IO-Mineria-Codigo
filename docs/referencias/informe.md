@@ -38,7 +38,7 @@ Se conserva LASSO como antecedente separado. Sus coeficientes no seleccionan ni 
 
 Se utilizan cuatro CSV de estudiantes, regularidades, historia académica y materias de planes. El procesamiento selecciona Ingeniería de Sistemas, con fecha de inscripción posterior a `2011-01-01` y anterior a `2023-12-31`, excluye egresados y un alumno de intercambio, aplica los filtros originales y conserva la población con `porc_finales <= 0.5`.
 
-La entrada actual con fecha de análisis `2026-10-01` contiene 2.587 alumnos. `preparar_entrada` carga los datos mediante `preparar_datos_academicos`, conserva sus identificadores por separado y construye dos tablas alineadas por posición: valores originales y valores estandarizados.
+La entrada actual con fecha de análisis `2026-10-01` contiene 2.587 alumnos. `prepare_input` carga los datos mediante `prepare_academic_data`, conserva sus identificadores por separado y construye dos tablas alineadas por posición: valores originales y valores estandarizados.
 
 ### Atributos
 
@@ -149,7 +149,7 @@ La referencia R–Python está verificada y la evaluación de DBSCAN está cerra
 
 - Clementi, G. y Salias, L. G. (2025). [Informe de Trabajo Final de Investigación Operativa](IO-Mineria-Informe-Clementi-Salias.pdf), secciones 3.2.1, 4.3 y 5.
 - [Analyzing students dropout using penalized logistic regression and hierarchical clustering: a case study in systems engineering](<Analyzing students dropout using penalized logistic regression and hierarchical clustering a case study in systems engineering.docx.pdf>), secciones 3, 4.4 y 5.
-- [Código original R](../../Legacy/scripts) y [preparación actual](../../src/data/preparacion.py).
+- [Código original R](../../Legacy/scripts) y [preparación actual](../../src/data/preparation.py).
 - [Documentación de clustering de scikit-learn](https://scikit-learn.org/stable/modules/clustering.html).
 
 
@@ -207,7 +207,7 @@ La semilla 6 produjo la mayor inercia y el mayor Silhouette del conjunto, mostra
 ### Reproducción y archivos
 
 ```bash
-uv run python main.py --fecha 2026-10-01
+uv run python main.py --date 2026-10-01
 ```
 
 Esta nota documenta la primera implementación, que generó tablas en `output/kmeans/` y gráficos en `output/graficos/kmeans/`. Las métricas de correspondencia y estabilidad descritas arriba pertenecen a esa ejecución histórica. La ejecución actual conserva el agrupamiento principal, muestra sus resultados básicos en consola y genera PNG en `output/<método>/graficos/`; no ejecuta la comparación ni exporta tablas. El [README](../../README.md) describe el alcance actual.

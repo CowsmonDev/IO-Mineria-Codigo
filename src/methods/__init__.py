@@ -1,1 +1,1 @@
-"""Métodos de análisis: agrupamiento y regresión logística LASSO."""
+"""Analysis methods: clustering and LASSO logistic regression."""

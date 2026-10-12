@@ -1,32 +1,24 @@
-# Comparación de agrupamientos de estudiantes
+# Student clustering comparison
 
-Trabajo final de Investigación Operativa — Facultad de Ciencias Exactas, UNICEN.
+Operations Research final project — Faculty of Exact Sciences, UNICEN.
 
-El proyecto estudia **cómo cambia la agrupación de los mismos estudiantes al aplicar K-Means y DBSCAN sobre los mismos atributos utilizados por el clustering jerárquico del estudio de Clementi y Salias**. Se compararán la cantidad de grupos, sus integrantes y sus características académicas para interpretar qué perfiles se conservan, se dividen, se fusionan o quedan como ruido.
+The project compares how **the same students are grouped by hierarchical clustering, K-Means and DBSCAN using the original academic features**. It examines group sizes, membership and academic profiles to identify preserved, split or merged groups and students classified as noise. Hierarchical labels are a comparison reference, not ground truth, and are never K-Means or DBSCAN input features.
 
-Cada método recibe la misma matriz estandarizada y produce su propia asignación de alumnos. K-Means y DBSCAN se ejecutan directamente sobre los atributos; no reciben los grupos jerárquicos como entrada. La segmentación jerárquica sirve como referencia de comparación, sin tratarla como una clasificación verdadera.
+## Current reference
 
-La propuesta retoma la línea de trabajos futuros del informe dedicada a contrastar los perfiles mediante otros algoritmos de clustering. En esta etapa se usan los datos académicos existentes; el enriquecimiento socioeconómico y la predicción supervisada son otras líneas de continuidad.
+The fixed analysis date is `2026-10-01`. The input contains 2,587 students and ten original features, including the dropout indicator.
 
-## Estado actual
-
-Los tres métodos están implementados y generan resúmenes y gráficos individuales. Para la fecha de análisis `2026-10-01`, la entrada contiene 2.587 alumnos y diez atributos:
-
-| Método | Configuración actual | Grupos | Ruido | Silhouette |
+| Method | Reference settings | Groups | Noise | Silhouette |
 |---|---|---:|---:|---:|
-| Jerárquico | Euclídea, Ward, corte h=35 | 7 | 0 | 0,295444 |
-| K-Means | k=7, 25 inicializaciones, semilla 123 | 7 | 0 | 0,365474 |
-| DBSCAN | eps=1,5; min_samples=5 | 1 | 194 (7,5 %) | No calculable: un grupo sin ruido |
+| Hierarchical | Euclidean distance, Ward, height 35 | 7 | 0 | 0.295444 |
+| K-Means | k=7, 25 initializations, seed 123 | 7 | 0 | 0.365474 |
+| DBSCAN | eps=1.5, min_samples=5 | 1 | 194 (7.5%) | Unavailable: one non-noise group |
 
-Los siete grupos de K-Means son una decisión de la configuración actual. Sus integrantes pueden diferir de los del jerárquico. En DBSCAN, la cantidad de grupos surge de la densidad; no se exige que sean siete.
+The hierarchical R-to-Python migration was verified for five analysis dates. Reproducing the exact publication date or its reported numbers is outside the project scope. DBSCAN exploration is complete without adopting it as the selected segmentation. K-Means experiments retain all original features and investigate parameter and initialization sensitivity. See the [research documentation](docs/README.md) and [K-Means experiment record](docs/resultados/experiencia-kmeans.md).
 
-La migración jerárquica R–Python está verificada: con los mismos CSV y la misma fecha, ambas implementaciones seleccionan los mismos alumnos y atributos y producen el mismo agrupamiento y Silhouette dentro de la precisión numérica. Se comprobó en cinco fechas; ver [verificación R–Python](docs/resultados/verificacion-fechas-r-python.md).
+## Setup and commands
 
-El requisito del proyecto es esa equivalencia entre implementaciones. Reproducir las cifras, figuras o fecha exacta del PDF no es un requisito ni una tarea pendiente. La entrada de trabajo conserva la fecha `2026-10-01`. Se realizaron exploraciones locales de DBSCAN; la comparación completa de perfiles entre los tres métodos sigue pendiente. La [búsqueda de siete grupos con poco ruido](docs/resultados/anexo-tecnico-dbscan.md#grilla-de-470-configuraciones-y-concordancia) obtuvo esa cantidad, pero mantuvo una gran concentración y poca concordancia con el jerárquico. El [informe final de DBSCAN](docs/resultados/experiencia-dbscan.pdf) cierra la búsqueda sin adoptarlo como segmentación seleccionada; se conservan la implementación y los casos como evidencia experimental.
-
-## Ejecución
-
-Se utiliza Python 3.11 y uv. Los datos deben estar disponibles localmente en `data/`:
+Use Python 3.11 and uv. Original CSV files must be available locally under `data/`:
 
 - `001_alumnos.csv`
 - `002_regularidades.csv`
@@ -35,109 +27,150 @@ Se utiliza Python 3.11 y uv. Los datos deben estar disponibles localmente en `da
 
 ```bash
 uv sync
-uv run python main.py
+uv run python main.py --date 2026-10-01 --output output
 ```
 
-La fecha predeterminada es `2026-10-01`, usada para la ejecución reproducible actual. `--fecha` tiene prioridad sobre `ANALYSIS_DATE` y permite cambiarla:
+`--date` takes precedence over `ANALYSIS_DATE`, then defaults to `2026-10-01`. The original last-year activity indicator still refers to 2023; changing the analysis date does not shift that window.
+
+The main pipeline runs all three reference methods and the five fixed DBSCAN cases. To change the individual DBSCAN fit:
 
 ```bash
-uv run python main.py --fecha 2026-10-01
+uv run python main.py --eps 0.8 --min-samples 10 --output output/local-comparison
 ```
 
-Cambiar la fecha puede cambiar los indicadores y las asignaciones. El indicador de actividad llamado «último año» sigue referido a 2023, conforme al procesamiento heredado; no se desplaza con `--fecha`.
+These settings are exploratory. `min_samples` includes the observation itself; the fixed cases retain their own settings.
 
-DBSCAN recibe parámetros explícitos. Por ejemplo, para explorar otra configuración y conservar sus salidas:
+## Independent K-Means experiments
 
 ```bash
-uv run python main.py --eps 0.8 --min-samples 10 --salida output/dbscan/experimentos/dbscan_0_8_10
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 uv run python -m src.runs.kmeans_experiments --date 2026-10-01 --output output/k-means/exploration
 ```
 
-Este comando ejecuta los tres métodos y los cinco casos fijos de DBSCAN, y guarda sus resultados en la raíz indicada. `--eps` y `--min-samples` modifican la ejecución individual de DBSCAN; los casos fijos conservan sus parámetros. Los valores del ejemplo son exploratorios, no una configuración final seleccionada. `min_samples` incluye al propio alumno.
+The protocol tests k=5 through 9, 100 initializations and thirty fixed seeds: 123 and 0 through 28. If the minimum pairwise ARI for a k is below 0.95, it repeats those seeds with 200 initializations. The threshold controls repetition, not acceptance. Thread limits make runtime more predictable without changing the academic protocol.
 
-## Entrada y resultado
+For a smaller explicit experiment:
 
-`main.py` procesa los argumentos de consola y llama a `src/runs/comparacion.py`, que solicita `preparar_entrada(fecha_analisis=fecha)` y delega en las funciones `pruebas` de cada run. Esa función carga los datos mediante `manipulacion.preparar_datos_academicos`, conserva los identificadores y prepara los valores originales y la matriz estandarizada con desvío muestral (`ddof=1`). Pandera valida las columnas, su orden, tipos y ausencia de nulos; también se verifica la alineación de los alumnos.
+```bash
+uv run python -m src.runs.kmeans_experiments --k 6 7 --seeds 123 0 1 --n-init 100 --n-init-control 200 --output output/k-means/local-experiment
+```
 
-Las diez variables y su significado se describen en [el informe](docs/referencias/informe.md#3-entrada-común). Los identificadores y etiquetas de clusters quedan fuera de la matriz. Se conserva `deserto` como atributo, siguiendo el código original; sus porcentajes por grupo son descriptivos y no validan una predicción de abandono.
+Each k/n_init exports its lowest-inertia representative, breaking ties by declared seed order. No configuration is automatically selected as the academic winner. The main pipeline continues to use its original k=7/n_init=25/seed=123 reference.
 
-Cada algoritmo devuelve:
+Experiment outputs include `protocol.json`, `metrics.csv`, `stability.csv`, `seed_pairs.csv` and `all_assignments.csv`. Each representative directory contains assignments, means, distributions, quartiles, standardized centers, Silhouette diagnostics, intersection profiles, correspondence tables, fragmentation and merge tables, and profile persistence across seeds. Figures include `plots/correspondence.png`, with membership counts and percentages normalized within each hierarchical row.
 
-- Una etiqueta por alumno; DBSCAN utiliza `-1` para ruido.
-- Una tabla de cantidades y medias en unidades originales por grupo.
-- Silhouette individual y promedio cuando se puede calcular.
-- Información propia del método: árbol jerárquico, centros e inercia de K-Means, o ruido y distancias de vecinos de DBSCAN.
+Pairwise ARI measures overall initialization sensitivity. Group matching maximizes overlap before measuring retention and Jaccard; this avoids treating label numbers as identities. These experiments do not measure stability against changes in sample composition.
 
-Las etiquetas numéricas son independientes: el grupo 1 de un método no necesariamente corresponde al grupo 1 de otro. Los resultados quedan en memoria al llamar a `main()` desde Python; los parámetros, resúmenes y Silhouette se muestran en consola. Además de `entrada` y `resultados`, el retorno contiene `pruebas_dbscan`: una lista de casos con `nombre`, `descripcion` y `resultado`. Cada resultado conserva la estructura que devuelve `dbscan.analizar`.
+## English code and original data names
 
-## Salidas en disco
+Identifiers, comments, docstrings, errors, CLI options, plot labels and generated output paths use English. Original CSV names, column names and categorical values remain unchanged so the original data can still be read and filtered correctly.
+
+`src/data/constants.py` provides class attributes with English identifiers and original values:
+
+```python
+from src.data.constants import AcademicStatus, Columns
+
+dropouts = students[
+    students[Columns.ACADEMIC_STATUS] == AcademicStatus.DROPOUT
+]
+# Columns.ACADEMIC_STATUS refers to the original status column.
+# AcademicStatus.DROPOUT contains the original administrative category.
+```
+
+`ClassVar[str]` marks these as class attributes. Uppercase names identify constants by convention; Python does not enforce runtime immutability. `Columns.DROPPED_OUT` identifies the computed dropout indicator, which is distinct from the administrative status category.
+
+`src/data/schemas.py` defines the contracts and Pandera validation. English field identifiers use aliases to retain the original DataFrame column names, order, types and validation rules. Report CSV column names also retain their documented values through `CSV_REPORT_COLUMNS`. Original reference documents and historical research artifacts retain their original language and filenames.
+
+The Python API uses English names:
+
+```python
+from src.data.preparation import prepare_input
+from src.methods.kmeans import analyze
+from main import main
+
+entry = prepare_input(analysis_date="2026-10-01")
+result = analyze(entry["matrix"], entry["original_values"])
+comparison = main(date="2026-10-01", output="output")
+```
+
+`ClusteringInput` contains `original_values`, `matrix`, `student_ids` and `analysis_date`. Matrices use sample standardization (`ddof=1`); identifiers and cluster labels are excluded. The original dropout feature is always retained, so group dropout proportions describe membership and do not independently validate dropout prediction.
+
+Method results include `labels`, `summary`, `silhouette`, `silhouette_mean`, `silhouette_population`, `silhouette_reason` and `parameters`, with method-specific diagnostics such as centers/inertia, linkage or neighbor distances. `main()` returns `entry`, `results` (with `hierarchical`, `kmeans`, `dbscan`) and `dbscan_cases`. Runs expose `run_cases(entry, directory)` and return `result` and `cases`.
+
+## Output layout
 
 ```text
 output/
-├── jerarquico/
-│   ├── resumen_clusters.csv
-│   └── graficos/              # PNG y PDF de dendrogramas internos y zooms
+├── hierarchical/
+│   ├── cluster_summary.csv
+│   └── plots/                    # PNG; PDF for internal dendrograms and zooms
 ├── k-means/
-│   └── graficos/              # PNG
+│   ├── plots/                    # Reference PNG figures
+│   └── exploration/              # Explicit independent experiments
+│       ├── reference/
+│       ├── k<k>_n<n_init>/
+│       └── protocol.json
 └── dbscan/
-    ├── graficos/              # PNG, incluido vecinos.png
-    └── experimentos/          # Cinco casos fijos de main y pruebas locales
-        ├── <caso>/graficos/    # Figuras individuales de DBSCAN
-        └── graficos/          # Comparación de grupos, ruido y concentración
+    ├── plots/                    # Includes neighbors.png
+    └── experiments/
+        ├── <case>/plots/
+        └── plots/comparison.png
 ```
 
-Se generan tamaños, Silhouette, boxplots de finales aprobados y promocionadas y proporción de deserción. Si Silhouette no está disponible, su figura explica el motivo.
+`data/*.csv` and generated `output/` artifacts are ignored by Git because they contain original records and student identifiers. Aggregate figures needed for research deliverables are retained alongside the relevant documents.
 
-El jerárquico también genera el dendrograma general, Silhouette para k=2 a 15, dendrogramas internos con cuatro subgrupos y zooms de los primeros 50 casos para grupos de al menos 500 alumnos. Los zooms son dendrogramas recalculados sobre esos casos; no representan necesariamente todo el grupo. Se agregan gráficos de deserción individual y avance frente a promocionadas. La curva de Silhouette no modifica el corte h=35.
-
-Actualmente se guarda un CSV para el jerárquico y gráficos por método. La ejecución recalcula cinco casos fijos de DBSCAN sobre la misma entrada y muestra una tabla de grupos, ruido, concentración y Silhouette. Genera gráficos individuales por caso y una figura conjunta en `output/dbscan/experimentos/graficos/comparacion.png`. No realiza una búsqueda de parámetros ni selecciona automáticamente un ganador. Las exploraciones históricas y el diagnóstico sin `deserto` no se ejecutan desde `main`. `data/` y `output/` están excluidos de Git.
-
-## Organización y verificación
+## Source organization
 
 ```text
-main.py                         # Entrada de consola; delega en src.runs.comparacion
+main.py                           # CLI for src.runs.comparison
 src/
-├── runs/
-│   ├── comparacion.py          # Prepara la entrada común y coordina los runs
-│   ├── dbscan.py               # Ejecución individual, cinco casos fijos y salidas
-│   ├── jerarquico.py           # Referencia Ward, gráficos y resumen CSV
-│   ├── kmeans.py               # Configuración actual k=7 y gráficos
-│   ├── lasso.py                # Ejecución independiente de LASSO
-│   └── visualizacion/
-│       ├── visualizacion.py    # Arma los conjuntos de salida por ejecución
-│       ├── guardado.py         # Exporta figuras a PNG/PDF y las cierra
-│       ├── esquemas.py         # Contratos de resultados y casos (TypedDict)
-│       ├── barras.py           # Barras y comparaciones en paneles
-│       ├── silhouette.py       # Silhouette por grupo
-│       ├── perfiles.py         # Boxplots por variable y grupo
-│       ├── lineas.py           # Curvas y referencias horizontales
-│       ├── dendrogramas.py     # Árbol general, internos y zooms
-│       └── dispersion.py       # Diagnósticos de deserción
 ├── data/
-│   ├── manipulacion.py         # CSV, filtros e indicadores académicos
-│   ├── esquemas.py             # Columnas y tipos de los DataFrames (Pandera)
-│   └── preparacion.py          # Carga, identidad y estandarización
-└── methods/
-    ├── jerarquico.py           # Árbol Ward y corte h=35
-    ├── kmeans.py               # Agrupamiento alrededor de centros
-    ├── dbscan.py               # Agrupamiento por densidad y ruido
-    └── lasso.py                # Regresión logística LASSO
+│   ├── constants.py              # Original names and categories
+│   ├── schemas.py                # Pandera and TypedDict contracts
+│   ├── processing.py             # CSV loading, filters and indicators
+│   └── preparation.py            # Identity, feature selection, standardization
+├── methods/
+│   ├── schemas.py                # Typed result contracts
+│   ├── hierarchical.py
+│   ├── kmeans.py
+│   ├── dbscan.py
+│   └── lasso.py
+└── runs/
+    ├── comparison.py             # Common input and method coordination
+    ├── hierarchical.py
+    ├── kmeans.py                 # Reference run
+    ├── kmeans_experiments.py      # Explicit parameter/seed experiments
+    ├── dbscan.py                  # Individual fit and fixed cases
+    ├── lasso.py                   # Independent supervised baseline
+    ├── schemas.py
+    ├── _reporting.py
+    └── visualization/
+        ├── outputs.py            # Plot bundles and output selection
+        ├── saving.py             # Export and close figures
+        ├── schemas.py
+        ├── correspondence.py
+        ├── bars.py
+        ├── profiles.py
+        ├── silhouette.py
+        ├── lines.py
+        ├── dendrograms.py
+        └── scatter.py
 ```
 
-```bash
-uv run pytest -q
-uv run ruff check main.py src tests
-```
+Plot functions return `Figure` objects. `save_figure` saves and closes them; output builders return `None`. Internal dendrograms and first-50-observation zooms are diagnostics and do not change the reference assignment. The hierarchical Silhouette curve for k=2 through 15 does not alter the fixed height-35 cut.
 
-Los módulos de `src/methods/` implementan K-Means, DBSCAN, el jerárquico y LASSO. Los métodos de agrupamiento devuelven sus resultados en memoria; LASSO devuelve el modelo y sus coeficientes. Las ejecuciones y experimentos se ubican en `src/runs/`; por ejemplo, `CONFIGURACIONES_PRUEBAS` y `pruebas` de DBSCAN están en `src/runs/dbscan.py`. Los runs de clustering exponen `pruebas(entrada, directorio)`, llaman al método y generan sus gráficos mediante `src.runs.visualizacion.visualizacion.generar_graficos_metodos`. Devuelven `resultado` (la ejecución principal) y `casos` (nombre, descripción y resultado por configuración). DBSCAN también genera la comparación de sus cinco casos; el jerárquico exporta su resumen CSV. `comparacion.py` reúne las salidas y no llama directamente a métodos ni a visualización. Se conserva `from main import main` para ejecutar la comparación desde Python.
-
-LASSO toma los valores originales de la misma preparación y puede ejecutarse por separado:
+LASSO is a separate baseline; its coefficients do not select or weight clustering features:
 
 ```bash
 ANALYSIS_DATE=2026-10-01 uv run --group antecedentes python -m src.runs.lasso
 ```
 
-Sus coeficientes no seleccionan ni ponderan las variables del clustering. Los scripts R y notebooks de la migración se conservan en `Legacy/`.
+Original R scripts and migration notebooks remain under `Legacy/`.
 
-La [guía de documentación](docs/README.md) reúne el alcance, el borrador de informe, las ejecuciones registradas, el flujo por archivos y los PDF de referencia.
+## Verification
 
-La visualización tiene tres responsabilidades separadas dentro de `src/runs/visualizacion/`: los módulos por tipo de gráfico devuelven figuras sin escribir archivos; `guardado.guardar_figura` recibe una figura, una ruta base y los formatos, y la cierra después de exportarla; `visualizacion.py` selecciona los gráficos, títulos y carpetas de cada ejecución. `generar_graficos_ejecucion` arma las salidas comunes de una configuración, `generar_diagnosticos_jerarquicos` agrega sus diagnósticos y `generar_graficos_experimentos_dbscan` agrega la comparación entre casos. Para usar una figura por separado, se llama a su función `graficar_*` y luego se guarda con `guardar_figura` o se cierra explícitamente.
+```bash
+uv run ruff check main.py src tests
+uv run pytest -q
+```
+
+Language refactoring must preserve original feature values, row identities, cluster membership and numerical diagnostics.

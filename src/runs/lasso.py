@@ -1,13 +1,14 @@
-"""Ejecución independiente de la regresión logística LASSO."""
+"""Independent LASSO logistic regression run."""
 
-from src.data.preparacion import preparar_entrada
-from src.methods.lasso import analizar
+from src.data.preparation import prepare_input
+from src.methods.lasso import analyze
+from src.methods.schemas import LassoResult
 
 
-def main(*, fecha_analisis=None):
-    """Ejecuta el antecedente LASSO por separado de la comparación."""
-    entrada = preparar_entrada(fecha_analisis=fecha_analisis)
-    return analizar(entrada["originales"])
+def main(*, analysis_date: str | None = None) -> LassoResult:
+    """Run the LASSO baseline separately from the clustering comparison."""
+    entry = prepare_input(analysis_date=analysis_date)
+    return analyze(entry["original_values"])
 
 
 if __name__ == "__main__":

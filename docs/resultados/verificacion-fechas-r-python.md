@@ -6,7 +6,7 @@ Comprobación realizada el 5 de octubre de 2026 sobre los CSV locales. El propó
 
 Se ejecutó el procesamiento original de R fijando `Sys.Date()` para cada fecha. Del script de análisis se evaluaron la selección numérica, estandarización, distancias euclídeas, Ward, corte h=35 y resumen. No se ejecutaron LASSO ni los gráficos, que no determinan el agrupamiento.
 
-Python utilizó `preparar_entrada(fecha_analisis=...)` y el módulo jerárquico actual cuando el corte produjo siete grupos. Para enero de 2023 se aplicó el mismo enlace y corte directamente con SciPy, pues el módulo actual rechaza cantidades distintas de siete.
+Python utilizó `prepare_input(analysis_date=...)` y el módulo jerárquico actual cuando el corte produjo siete grupos. Para enero de 2023 se aplicó el mismo enlace y corte directamente con SciPy, pues el módulo actual rechaza cantidades distintas de siete.
 
 Las tablas y matrices se alinearon por `id_alumno`, comparando atributos, asignaciones mediante ARI y Silhouette. ARI=1 indica igualdad de agrupamiento aunque cambien los números de etiquetas.
 

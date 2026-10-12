@@ -1,20 +1,26 @@
-"""Regresión logística LASSO del análisis original."""
+"""LASSO logistic regression from the original analysis."""
 
 import numpy as np
 import pandas as pd
 from glmnet import LogitNet
+from numpy.typing import ArrayLike, NDArray
 from sklearn.model_selection import KFold
 
+from src.data.constants import Columns
+from src.methods.schemas import LassoResult
 
-def analizar(alumnos_s_avanzados):
-    """Ajusta el modelo y muestra sus coeficientes en las unidades originales."""
-    # REGRESIÓN LOGÍSTICA LASSO
-    # Preparar matrices
-    X = alumnos_s_avanzados.drop(columns=["deserto"])
-    y = alumnos_s_avanzados["deserto"]
 
-    def _glmnet_deviance_score(model, features, target, lamb):
-        """Score binomial deviance using R glmnet's probability bounds."""
+def analyze(eligible_students: pd.DataFrame) -> LassoResult:
+    """Fit the model and display its coefficients in original units."""
+    # LASSO logistic regression
+    # Prepare feature and target matrices.
+    X = eligible_students.drop(columns=[Columns.DROPPED_OUT])
+    y = eligible_students[Columns.DROPPED_OUT]
+
+    def _glmnet_deviance_score(
+        model: LogitNet, features: ArrayLike, target: ArrayLike, lamb: ArrayLike
+    ) -> NDArray[np.float64]:
+        "Score binomial deviance using R glmnet's probability bounds."
         probabilities = model.predict_proba(features, lamb=lamb)[:, 1, :]
         probabilities = np.clip(probabilities, 1e-5, 1 - 1e-5)
         target = np.asarray(target).reshape(-1, 1)
@@ -24,19 +30,17 @@ def analizar(alumnos_s_avanzados):
         )
 
     np.random.seed(1)
-    # Modelo LASSO
-    # Particiones aleatorias sin estratificar, como cv.glmnet en R.
-    particiones_lasso = KFold(n_splits=10, shuffle=True, random_state=1)
-    grupos_lasso = np.empty(len(X), dtype=int)
-    for numero_particion, (_, indices_validacion) in enumerate(
-        particiones_lasso.split(X)
-    ):
-        grupos_lasso[indices_validacion] = numero_particion
+    # LASSO model
+    # Random unstratified folds, matching cv.glmnet in R.
+    lasso_folds = KFold(n_splits=10, shuffle=True, random_state=1)
+    lasso_groups = np.empty(len(X), dtype=int)
+    for fold_number, (_, validation_indices) in enumerate(lasso_folds.split(X)):
+        lasso_groups[validation_indices] = fold_number
 
-    # glmnet estandariza internamente y devuelve coeficientes en la escala original.
-    # cv.glmnet limita probabilidades a [1e-5, 1-1e-5] al calcular la deviance.
-    # cut_point=0 selecciona el mínimo error, como s="lambda.min" en el original.
-    modelo_lasso = LogitNet(
+    # glmnet standardizes internally and returns original-scale coefficients.
+    # cv.glmnet clips probabilities to [1e-5, 1-1e-5] for deviance.
+    # cut_point=0 selects minimum error, matching the original lambda.min.
+    lasso_model = LogitNet(
         alpha=1,
         n_lambda=100,
         min_lambda_ratio=0.01 if X.shape[0] < X.shape[1] else 0.0001,
@@ -46,20 +50,20 @@ def analizar(alumnos_s_avanzados):
         standardize=True,
         fit_intercept=True,
         random_state=1,
-    ).fit(X, y, groups=grupos_lasso)
+    ).fit(X, y, groups=lasso_groups)
 
-    coeficientes_lasso = pd.Series(
-        modelo_lasso.coef_[0],
+    lasso_coefficients = pd.Series(
+        lasso_model.coef_[0],
         index=X.columns,
         name="coeficiente",
     )
-    intercepto_lasso = float(modelo_lasso.intercept_)
-    coeficientes_lasso = pd.concat(
+    lasso_intercept = float(lasso_model.intercept_)
+    lasso_coefficients = pd.concat(
         [
-            pd.Series({"(Intercept)": intercepto_lasso}, name="coeficiente"),
-            coeficientes_lasso,
+            pd.Series({"(Intercept)": lasso_intercept}, name="coeficiente"),
+            lasso_coefficients,
         ]
     )
-    print(coeficientes_lasso)
+    print(lasso_coefficients)
 
-    return {"modelo": modelo_lasso, "coeficientes": coeficientes_lasso}
+    return {"model": lasso_model, "coefficients": lasso_coefficients}
